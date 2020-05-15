@@ -1,0 +1,281 @@
+---
+title: 'Project 2: Modeling, Testing, and Predicting'
+author: "Tylana La - tml2322"
+date: '05/01/2020'
+output:
+  html_document:
+    toc: yes
+    toc_float:
+      collapsed: no
+      smooth_scroll: yes
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(knitr)
+hook_output = knit_hooks$get('output')
+knit_hooks$set(output = function(x, options) {
+  # this hook is used only when the linewidth option is not NULL
+  if (!is.null(n <- options$linewidth)) {
+    x = knitr:::split_lines(x)
+    # any lines wider than n should be wrapped
+    if (any(nchar(x) > n)) x = strwrap(x, width = n)
+    x = paste(x, collapse = '\n')
+  }
+  hook_output(x, options)
+})
+
+knitr::opts_chunk$set(echo = TRUE, eval = TRUE,fig.align="center",warning=FALSE,message=FALSE,fig.width=8, fig.height=5, linewidth=60)
+options(tibble.width = 100,width = 100)
+
+class_diag <- function(probs,truth){
+  #CONFUSION MATRIX: CALCULATE ACCURACY, TPR, TNR, PPV
+  tab<-table(factor(probs>.5,levels=c("FALSE","TRUE")),truth)
+  acc=sum(diag(tab))/sum(tab)
+  sens=tab[2,2]/colSums(tab)[2]
+  spec=tab[1,1]/colSums(tab)[1]
+  ppv=tab[2,2]/rowSums(tab)[2]
+  if(is.numeric(truth)==FALSE & is.logical(truth)==FALSE) truth<-as.numeric(truth)-1
+    #CALCULATE EXACT AUC
+  ord<-order(probs, decreasing=TRUE)
+  probs <- probs[ord]; truth <- truth[ord]
+  TPR=cumsum(truth)/max(1,sum(truth))
+  FPR=cumsum(!truth)/max(1,sum(!truth))
+  dup<-c(probs[-1]>=probs[-length(probs)], FALSE)
+  TPR<-c(0,TPR[!dup],1); FPR<-c(0,FPR[!dup],1)
+  n <- length(TPR)
+  auc<- sum( ((TPR[-1]+TPR[-n])/2) * (FPR[-1]-FPR[-n]) )
+  data.frame(acc,sens,spec,ppv,auc)
+}
+
+library(tidyverse)
+library(sandwich)
+library(lmtest)
+library(dplyr)
+library(ggplot2)
+library(plotROC)
+library(glmnet)
+```
+
+# Dataset
+```{R}
+tuition_cost <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2020/2020-03-10/tuition_cost.csv')
+head(tuition_cost)
+
+#chose variables out of dataset that I wanted to use 
+#looked in raw dataset and saw 1 "Other" degree length, so I took it out in order to create a binary variable 
+tuition<-tuition_cost%>%filter(!degree_length=="Other")%>%select(name, state_code, type, degree_length, room_and_board, in_state_total, out_of_state_total)%>%rename(Name=name, State=state_code, Type=type, Deg_Length=degree_length, R_B=room_and_board, In_State_Tot=in_state_total, Out_State_Tot=out_of_state_total)
+head(tuition)
+```
+
+# INTRODUCTION
+This dataset is from GitHub and describes college tuition across the United States. The categorical variables that I decided to use include Type, which lets us know if the college is Private, Public or For Profit, and Degree Length, which tells us if they are a 2 year university or a 4 year university. The numeric variables I decided to use were room and board cost, in state total cost, and out of state total cost. I decided not to use in state tuition and out of state tuition because I just wanted to focus on the total cost of college. There are a total of 2973 observations, although I take out one that is considered "Other" in the degree length, ending with 2972 observations. Later in the project, I have to tidy the data further and end up with 1879 observations, as some of the colleges don't have a price for room and board. 
+
+# MANOVA, ANOVA, Post-Hoc t-tests
+
+```{R}
+#Ho - For both DVs (in state and out of state tuitoin), means for each Type (of college) are equal
+#Ha - For at least one DV, at least one Type's mean is different
+
+#MANOVA
+manova<-manova(cbind(In_State_Tot, Out_State_Tot)~Type, data=tuition)
+summary(manova)
+
+#ANOVA
+summary.aov(manova) 
+
+#post-hoc t-test 
+pairwise.t.test(tuition$In_State_Tot,tuition$Type, p.adj="none")
+pairwise.t.test(tuition$Out_State_Tot,tuition$Type, p.adj="none")
+
+#type I error rate 
+1 - (0.95^9)
+
+#bonferroni correction 
+0.05/9
+```
+
+9 hypothesis tests were performed: 1 MANOVA, 2 ANOVAs, and 6 post-hoc t-tests. The probability of at least one type I error rate is about 36.9751%. The bonferroni correction is alpha = 0.005556. 
+
+A MANOVA has many assumptions like random samples and independent observations, multivariate normality of each group, linear relationships among dependent variables, no multicollinearity, and more -- but these were most likely not met as they are hard to test and meet. 
+
+A one-way MANOVA was conducted to determine the effect of the college Type (Public, Private, For Profit) on two dependent variables (In State Total cost and Out of State Total cost). Significant differences were found among the three types of college for at least one of the dependent variables, Pillai trace = 0.75166, psuedo F(4, 5938) = 893.86, p < 2.2e-16. Univariate ANOVAs for each dependent variable were conducted as follow-up tests to the MANOVA, using the Bonferroni method for controlling Type I error rates for multiple comparisons. The univariate ANOVAs for In State Total cost and Out of State Total cost were also significant, F(2, 2969) = 1695.2, p < 2.2e-16 and F(2, 2969) = 744.8, p < 2.2e-16, respectively. Post hoc analysis was performed conducting pairwise comparisons to determine which Type differed in in state total cost and out of state total cost. All three Types were found to differ significantly from each other in terms of In State Total cost, however only Private colleges were significantly different from the other types for Out of State total cost after adjusting for multiple comparisons. 
+
+# RANDOMIZATION 
+
+```{R}
+head(tuition)
+# RANDOMIZATION ONE-WAY ANOVA 
+
+#Ho: the true mean of the response variable is the same for all 3 groups
+#Ha: at least one of these means differs from the others
+
+summary(aov(Out_State_Tot~Type, data=tuition))
+
+obs_F<-744.8 #this is our observed F-statistic
+Fs<-replicate(5000,{ #do everything in curly braces 5000 times and save the output
+ new<-tuition%>%mutate(Out_State_Tot=sample(Out_State_Tot)) #randomly permute response variable (len)
+ #compute the F-statistic by hand
+ SSW<- new%>%group_by(Type)%>%summarize(SSW=sum((Out_State_Tot-mean(Out_State_Tot))^2))%>%
+       summarize(sum(SSW))%>%pull
+ SSB<- new%>%mutate(mean=mean(Out_State_Tot))%>%group_by(Type)%>%mutate(groupmean=mean(Out_State_Tot))%>%
+       summarize(SSB=sum((mean-groupmean)^2))%>%summarize(sum(SSB))%>%pull
+ (SSB/2)/(SSW/2969) #compute F statistic (num df = K-1 = 3-1, denom df = N-K = 60-3)
+})
+
+hist(Fs, prob=T); abline(v = obs_F, col="red",add=T)
+
+#p-value
+mean(Fs>obs_F)
+
+#p-value is 0, reject the null hypothesis, can say that the groups differ 
+```
+A randomization test was performed in the form of a one-way ANOVA to test if the Type of college (Private, Public, or For Profit) affected out of state total cost. The null hypothesis is that the out of state total cost of college is going to be the same for all groups. The alternative hypothesis is that the out of state total cost of college is going to differ between the different groups. Based on the p-value of 0, we can reject the null hypothesis which means that there is a significant difference in the out of state total cost across the 3 different types of colleges. 
+
+*The test statistic is coded for, but does not show up on the graph as it the mean difference is too large of a value. 
+
+# LINEAR REGRESSION
+
+```{R}
+#mean center
+#first had to get rid of any NAs in room and board -- tried to do it without and got NA for mean
+tuition_RB<- tuition%>%filter(!is.na(R_B))
+tuition_RB$RB_c<- tuition_RB$R_B - mean(tuition_RB$R_B)
+head(tuition_RB)
+
+#linear regression
+fit<-lm(Out_State_Tot ~ RB_c*Deg_Length, data=tuition_RB)
+summary(fit)
+
+#plot regression
+ggplot(tuition_RB,aes(R_B, Out_State_Tot, color=Deg_Length))+geom_point(size=0.75)+stat_smooth(method="lm",se=FALSE)
+
+#check assumption 
+#linearity and homoskedasticity
+resids<-fit$residuals; fitvals<-fit$fitted.values
+ggplot()+geom_point(aes(fitvals,resids))+geom_hline(yintercept=0, col="red")
+#normality
+ggplot()+geom_histogram(aes(resids), bins=20)
+ggplot()+geom_qq(aes(sample=resids))+geom_qq_line(aes(sample=resids))
+
+#robust SE regression 
+coeftest(fit,vcov=vcovHC(fit))
+
+#proportion
+sum((fitvals-mean(tuition_RB$Out_State_Tot))^2)/sum((tuition_RB$Out_State_Tot-mean(tuition_RB$Out_State_Tot))^2)
+
+```
+Predicted Out of State Total cost of college for a 2 year degree plan, controlling for room and board cost is $23,750. Controlling for degree length, for every 1-unit increase in room and board cost, out of state total cost increases $2.367 on average. Controlling for room and board cost, out of state total cost is $1347 lower than 2 year degree plans. The slope for room and board on out of state total cost is 1.358 times greater for 4 year degree plans compared to 2 year degree plans. 
+
+Based on the graph for linearity and homoskedasticity, they are both not met as there is some flaring inthe residuals. However, based on the graphs, normality looks like it is met. 
+
+After recomputing regression results with robust standard errors, the coefficients did not change and there was minimal changes in the p-values. This model explains about 71.246% of the variation in the outcome. 
+
+# BOOTSTRAP REGRESSION MODEL
+
+```{R}
+# repeat 5000 times, saving the coefficients each time
+boot_tuition<- sample_frac(tuition_RB, replace=T)
+# repeat 5000 times
+samp_tuition<-replicate(5000, {
+  boot_tuition <- sample_frac(tuition_RB, replace=T) #bootstrap your data
+  fit <- lm(Out_State_Tot ~ R_B*Deg_Length, data=boot_tuition) #fit model
+  coef(fit) #save coefs
+})
+
+## Estimated SEs
+samp_tuition %>% t %>% as.data.frame %>% summarize_all(sd)
+
+coeftest(fit)
+```
+
+When comparing the bootsrap regression model to the original and robust models, there is no change in the SEs and minimal differences in the p-values. Everything that was significant before is still significant. 
+
+# LOGISTIC REGRESSION
+
+```{R}
+#logistic regression
+tuition2<- tuition_RB%>%mutate(y=ifelse(Deg_Length=="2 Year",1,0))
+tuition2
+fit_t2<-glm(y~R_B+Type, data=tuition2, family="binomial")
+summary(fit_t2)
+exp(coef(fit_t2))
+
+#confusion matrix
+probs<-predict(fit_t2,type="response") #get predicted probs from the model
+table(predict=as.numeric(probs>.5),truth=tuition2$y)%>%addmargins
+
+(1575+143)/1879 #accuracy
+143/272 #TPR
+1575/1607 #TNR
+143/175 #PPV 
+
+#density plot log-odds
+tuition2$logit<-predict(fit_t2,type="link")
+tuition2%>%ggplot()+geom_density(aes(logit,color=Deg_Length,fill=Deg_Length), alpha=.4)+
+  theme(legend.position=c(.9,.85))+geom_vline(xintercept=0)+xlab("logit (log-odds)")+
+  geom_rug(aes(logit,color=Deg_Length))+
+  geom_text(x=-4.5,y=.08,label="TN = 1575")+
+  geom_text(x=-1.75,y=.05,label="FN = 129")+
+  geom_text(x=.35,y=.01,label="FP = 32")+
+  geom_text(x=.65,y=.15,label="TP = 143")
+
+#ROC curve & AUC 
+ROCplot<- ggplot(tuition2)+geom_roc(aes(d=y,m=probs), n.cuts=0)
+ROCplot
+calc_auc(ROCplot)
+
+#10-fold CV, Accuracy, Sens, PPV 
+set.seed(1234)
+k=10 
+data<-tuition2[sample(nrow(tuition2)),] 
+folds<-cut(seq(1:nrow(tuition2)),breaks=k,labels=F)
+diags<-NULL
+for(i in 1:k){
+  train<-data[folds!=i,]
+  test<-data[folds==i,]
+  truth<-test$y 
+  fit<-glm(y~R_B+Type,data=train,family="binomial")
+  probs<-predict(fit,newdata = test,type="response")
+  diags<-rbind(diags,class_diag(probs,truth))
+}
+summarize_all(diags,mean)
+```
+
+The odds of a college being 2 years long for a For Profit school is 20.66769601. Controlling for type of school, for every one additional dollar in room and board, odds of a college being a 2 year program increases by a factor of 0.99954600 (significant). Controlling for room and board, odds of a college being 2 years long for a private college is 0.07109726 times odds for a for profit college. Controlling for room and board, odds of a college being 2 years long for a public college is 1.07297786 times odds for a for profit college. 
+
+The model's accuracy is 0.9143161. The sensitivity (TPR) or the probability of correctly determining a college having a 2 year degree plan is 0.5257353. The specificity (TNR) or the probability of correctly determining a college having a 4 year degree plan is 0.9800871. The precision (PPV) or proportion of colleges that are classified as a 2 year degree plan and actually is: 0.8171429. The AUC is 0.8877681, which is good. 
+
+After running a 10-fold CV, the out-of-sample AUC is 0.8873959, sensitivity 0.5259665, and recall (PPV) 0.8088085. 
+
+# LASSO REGRESSION 
+
+```{R}
+y<-as.matrix(tuition2$y)
+x<-model.matrix(y~Type+R_B+In_State_Tot+Out_State_Tot,data=tuition2)[,-1] 
+x<-scale(x)
+
+cv<-cv.glmnet(x,y,family="binomial")
+lasso<-glmnet(x,y,family="binomial",lambda=cv$lambda.1se)
+coef(lasso)
+
+set.seed(1234)
+k=10 #choose number of folds
+tuition2$private<-ifelse(tuition2$Type=="Private",1,0)
+data1<-tuition2[sample(nrow(tuition2)),] 
+folds<-cut(seq(1:nrow(tuition2)),breaks=k,labels=F) 
+diags<-NULL
+for(i in 1:k){
+  train<-data1[folds!=i,]
+  test<-data1[folds==i,]
+  truth<-test$y
+  fit<-glm(y~Out_State_Tot+private,data=train,family="binomial")
+  probs<-predict(fit,newdata = test,type="response")
+  diags<-rbind(diags,class_diag(probs,truth))
+}
+diags%>%summarize_all(mean)
+
+```
+
+The only variables that are retained is Out_State_Tot and TypePrivate. After peforming a 10-fold LASSO CV, the out-of-sample AUC is 0.9366165, which is classified as great and is better than the logistic regression performed before. This suggests that this model is not overfitting. 

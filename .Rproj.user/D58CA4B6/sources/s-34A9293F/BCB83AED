@@ -1,0 +1,25 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1589520828103.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "3584101571",
+    "id" : "BCB83AED",
+    "lastKnownWriteTime" : 1589520980,
+    "last_content_update" : 1589520980373,
+    "path" : "~/Desktop/website2/content/blog/projectblog.Rmd",
+    "project_path" : "content/blog/projectblog.Rmd",
+    "properties" : {
+        "cursorPosition" : "82,47",
+        "scrollLine" : "71"
+    },
+    "read_only" : false,
+    "read_only_alternatives" : [
+    ],
+    "relative_order" : 6,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_markdown"
+}

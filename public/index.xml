@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Tylana La</title>
+    <link>/</link>
+    <description>Recent content on Tylana La</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-US</language>
+    <lastBuildDate>Sun, 02 Oct 2016 22:55:05 -0400</lastBuildDate>
+    
+	<atom:link href="/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>Memories</title>
+      <link>/blog/projectblog/</link>
+      <pubDate>Fri, 15 May 2020 00:00:00 +0000</pubDate>
+      
+      <guid>/blog/projectblog/</guid>
+      <description>My years in undergrad are coming to an end. I’ve had a lot of good times and some not so good ones (organic chemistry, you have left me scarred 😖). I’m ready to close this chapter in my life and move on to the next. But before I go, I want to reminisce on some of my favorite moments from college using R and Python (afterall, I have one last very important project to do before undergrad is actually over).</description>
+    </item>
+    
+    <item>
+      <title>About</title>
+      <link>/about/</link>
+      <pubDate>Sun, 02 Oct 2016 22:55:05 -0400</pubDate>
+      
+      <guid>/about/</guid>
+      <description>About: Hiya there! My name is Tylana. I was born and raised in Houston, TX and have loved living in Austin the last 4 years for college. I&amp;rsquo;m excited graduate this May from The University of Texas at Austin with a Bachelor of Science and Arts in Biology. Soon, I&amp;rsquo;ll be starting graduate school at the University of North Texas Health Science Center to pursue a Masters in Medical Sciences, the next stepping stone for me to (hopefully!</description>
+    </item>
+    
+    <item>
+      <title>Projects</title>
+      <link>/projects/</link>
+      <pubDate>Sun, 02 Oct 2016 22:55:05 -0400</pubDate>
+      
+      <guid>/projects/</guid>
+      <description>Projects Here are some projects I completed during the Spring 2020 semester at UT for Computational Biology:
+ Exploratory Data Analysis with Tidyverse Tools: Scary Movies Aren&amp;rsquo;t Rated as Well as You Think   Modeling, Testing, and Classification: College Tuition Throughout the USA  I honestly had a lot of fun and learned a lot doing these projects. I want to give a special thanks to Nathaniel Woodward for being one of the best (and quite possibly my favorite) professors I&amp;rsquo;ve ever had at UT!</description>
+    </item>
+    
+    <item>
+      <title>Project 1 - Tylana La - tml2322</title>
+      <link>/project1/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>/project1/</guid>
+      <description>Introduction I have three datasets that included Movie Names, Movie Ratings that corresponded to the Movie Names, and Scary Movies that also had ratings. The Movie Name dataset only included movie titles and years they were made, an ID number for each movie and corresponding genre(s) for each movie. The Movie Rating dataset included movie ID numbers that correlated to the movies in the Movie Name dataset, ratings for each movie, different user IDs and timestamps for each rating that was given.</description>
+    </item>
+    
+    <item>
+      <title>Project 2: Modeling, Testing, and Predicting</title>
+      <link>/project2/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>/project2/</guid>
+      <description>Dataset tuition_cost &amp;lt;- readr::read_csv(&amp;#39;https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2020/2020-03-10/tuition_cost.csv&amp;#39;) head(tuition_cost) ## # A tibble: 6 x 10 ## name state state_code type degree_length room_and_board in_state_tuition in_state_total ## &amp;lt;chr&amp;gt; &amp;lt;chr&amp;gt; &amp;lt;chr&amp;gt; &amp;lt;chr&amp;gt; &amp;lt;chr&amp;gt; &amp;lt;dbl&amp;gt; &amp;lt;dbl&amp;gt; &amp;lt;dbl&amp;gt; ## 1 Aani… Mont… MT Publ… 2 Year NA 2380 2380 ## 2 Abil… Texas TX Priv… 4 Year 10350 34850 45200 ## 3 Abra… Geor… GA Publ… 2 Year 8474 4128 12602 ## 4 Acad… Minn… MN For … 2 Year NA 17661 17661 ## 5 Acad… Cali… CA For … 4 Year 16648 27810 44458 ## 6 Adam… Colo… CO Publ… 4 Year 8782 9440 18222 ## # … with 2 more variables: out_of_state_tuition &amp;lt;dbl&amp;gt;, out_of_state_total &amp;lt;dbl&amp;gt; #chose variables out of dataset that I wanted to use #looked in raw dataset and saw 1 &amp;quot;Other&amp;quot; degree length, so I took it out in order to create a binary variable tuition&amp;lt;-tuition_cost%&amp;gt;%filter(!</description>
+    </item>
+    
+  </channel>
+</rss>

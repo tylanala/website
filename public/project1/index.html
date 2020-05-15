@@ -1,0 +1,805 @@
+<!DOCTYPE html>
+<html lang="en-US">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="author" content="Tylana La" />
+    <meta name="description" content="Describe your website">
+    <link rel="shortcut icon" type="image/x-icon" href="/img/favicon.ico">
+    <title>Project 1 - Tylana La - tml2322</title>
+    <meta name="generator" content="Hugo 0.70.0" />
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    <link rel="stylesheet" type="text/css" href="/css/main.css" />
+    <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" />
+    <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:200,400,200bold,400old" />
+    
+    <!--[if lt IE 9]>
+			<script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+			<script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+		<![endif]-->
+
+    
+  </head>
+
+  <body>
+    <div id="wrap">
+
+      
+      <nav class="navbar navbar-default">
+  <div class="container">
+    <div class="navbar-header">
+      <a class="navbar-brand" href="/"><i class="fa fa-home"></i></a>
+      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+    </div>
+    <div class="navbar-collapse collapse" id="navbar">
+      <ul class="nav navbar-nav navbar-right">
+      
+        
+        <li><a href="/blog/">BLOG</a></li>
+        
+        <li><a href="/projects/">PROJECTS</a></li>
+        
+        <li><a href="/about/">ABOUT</a></li>
+        
+      
+      </ul>
+    </div>
+  </div>
+</nav>
+
+      
+      <div class="container">
+        <div class="blog-post">
+          <h3>
+            <strong><a href="/project1/">Project 1 - Tylana La - tml2322</a></strong>
+          </h3>
+        </div>
+        <div class="blog-title">
+          <h4>
+          January 1, 0001
+            &nbsp;&nbsp;
+            
+          </h4>
+        </div>
+        <div class="panel panel-default">
+          <div class="panel-body">
+            <div class="blogpost">
+              
+
+
+<div id="introduction" class="section level2">
+<h2>Introduction</h2>
+<p>I have three datasets that included Movie Names, Movie Ratings that corresponded to the Movie Names, and Scary Movies that also had ratings. The Movie Name dataset only included movie titles and years they were made, an ID number for each movie and corresponding genre(s) for each movie. The Movie Rating dataset included movie ID numbers that correlated to the movies in the Movie Name dataset, ratings for each movie, different user IDs and timestamps for each rating that was given. The Scary Movie dataset included movie titles, the director for each movie, the year the movie was made, if the movie was on Netflix or not, a jump count, jump scare rating and an IMDB rating for each movie. I got these datasets from the excel sheet provided that included a plethora of different datasets.</p>
+<p>While I’m not the hugest fan of scary movies, I thought it would be interesting if I could find a relationship between the jump count, jump scare rating, the regular and/or IMDB rating. When I was looking through the datasets, I was expecting to see a high positive correlation between the jump count and jump scare rating. I was also expecting to see a high positive correlation between the jump count and regular/IMDB rating.</p>
+</div>
+<div id="datasets" class="section level2">
+<h2>Datasets</h2>
+<pre class="r"><code>library(tidyverse)</code></pre>
+<pre><code>## ── Attaching packages ────────────────────────────────────────────────────── tidyverse 1.3.0 ──</code></pre>
+<pre><code>## ✓ ggplot2 3.2.1     ✓ purrr   0.3.3
+## ✓ tibble  2.1.3     ✓ dplyr   0.8.4
+## ✓ tidyr   1.0.2     ✓ stringr 1.4.0
+## ✓ readr   1.3.1     ✓ forcats 0.4.0</code></pre>
+<pre><code>## ── Conflicts ───────────────────────────────────────────────────────── tidyverse_conflicts() ──
+## x dplyr::filter() masks stats::filter()
+## x dplyr::lag()    masks stats::lag()</code></pre>
+<pre class="r"><code>library(dplyr)
+library(ggplot2)
+
+movienames = read.csv(&quot;movie names.csv&quot;)
+scarymovies = read.csv(&quot;scary movies.csv&quot;)
+movieratings = read.csv(&quot;movie ratings.csv&quot;)
+
+#movie names now have movie ratings 
+ratedmovies&lt;-movienames%&gt;%full_join(movieratings) </code></pre>
+<pre><code>## Joining, by = &quot;Movie.ID&quot;</code></pre>
+<pre class="r"><code>#separated title (Movie (Year)) into into new columns &quot;Movie&quot;&amp;&quot;Year&quot;
+sep_ratedmovies&lt;-ratedmovies%&gt;%separate(Title, c(&quot;Movie&quot;, &quot;Year&quot;), sep=&quot;[()]&quot;)%&gt;%filter(!is.na(Movie))</code></pre>
+<pre><code>## Warning: Expected 2 pieces. Additional pieces discarded in 100649 rows [1, 2, 3,
+## 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, ...].</code></pre>
+<pre><code>## Warning: Expected 2 pieces. Missing pieces filled with `NA` in 18 rows [8103,
+## 8104, 12285, 21300, 21301, 32958, 35475, 43923, 56411, 60727, 64289, 66914,
+## 72265, 72266, 72267, 72268, 89014, 89830].</code></pre>
+<pre class="r"><code>##checking if all datapoints in Year are numeric -- yes; some don&#39;t have years -- gives NA for some rows 
+which(is.na(as.numeric(as.character(sep_ratedmovies[[&quot;Year&quot;]])))) </code></pre>
+<pre><code>##  [1]  8103  8104 12285 21300 21301 32958 35475 43923 56411 60727 64289 66914
+## [13] 72265 72266 72267 72268 89014 89830</code></pre>
+</div>
+<div id="tidying-rearranging" class="section level2">
+<h2>Tidying: Rearranging</h2>
+<pre class="r"><code>spreadmovies&lt;- scarymovies%&gt;%pivot_wider(names_from=&quot;Year&quot;,values_from=&quot;Director&quot;)
+glimpse(spreadmovies)</code></pre>
+<pre><code>## Observations: 543
+## Variables: 59
+## $ Movie.Name        &lt;fct&gt; &quot;31&quot;, &quot;1408&quot;, &quot;1917&quot;, &quot;1922&quot;, &quot;[Rec]&quot;, &quot;10 Cloverfi…
+## $ Jump.Count        &lt;int&gt; 8, 8, 10, 2, 11, 8, 10, 17, 9, 11, 14, 21, 0, 8, 2,…
+## $ Jump.scare.Rating &lt;dbl&gt; 2.5, 3.0, 2.5, 1.0, 3.5, 2.5, 3.0, 3.5, 2.5, 3.0, 4…
+## $ Netflix..US.      &lt;fct&gt; No, No, No, Yes, No, No, No, No, No, Yes, No, No, N…
+## $ IMDB              &lt;dbl&gt; 5.1, 6.8, 8.5, 6.3, 7.4, 7.2, 7.6, 7.0, 6.6, 5.6, 7…
+## $ `2016`            &lt;fct&gt; Rob Zombie, NA, NA, NA, NA, Dan Trachtenberg, NA, N…
+## $ `2007`            &lt;fct&gt; NA, &quot;Mikael Håfström&quot;, NA, NA, &quot;Jaume Balagueró, Pa…
+## $ `2019`            &lt;fct&gt; NA, NA, Sam Mendes, NA, NA, NA, NA, NA, NA, NA, NA,…
+## $ `2017`            &lt;fct&gt; NA, NA, NA, Zak Hilditch, NA, NA, NA, NA, NA, Johan…
+## $ `2002`            &lt;fct&gt; NA, NA, NA, NA, NA, NA, Danny Boyle, NA, NA, NA, NA…
+## $ `2018`            &lt;fct&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, John Krasin…
+## $ `2015`            &lt;fct&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, Eytan R…
+## $ `2012`            &lt;fct&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, Var…
+## $ `2011`            &lt;fct&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA,…
+## $ `1989`            &lt;fct&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA,…
+## $ `1979`            &lt;fct&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA,…
+## $ `1992`            &lt;fct&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA,…
+## $ `1997`            &lt;fct&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA,…
+## $ `1986`            &lt;fct&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA,…
+## $ `1980`            &lt;fct&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA,…
+## $ `1981`            &lt;fct&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA,…
+## $ `2005`            &lt;fct&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA,…
+## $ `2013`            &lt;fct&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA,…
+## $ `2014`            &lt;fct&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA,…
+## $ `1999`            &lt;fct&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA,…
+## $ `1974`            &lt;fct&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA,…
+## $ `2010`            &lt;fct&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA,…
+## $ `1998`            &lt;fct&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA,…
+## $ `1991`            &lt;fct&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA,…
+## $ `1976`            &lt;fct&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA,…
+## $ `2009`            &lt;fct&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA,…
+## $ `1942`            &lt;fct&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA,…
+## $ `1988`            &lt;fct&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA,…
+## $ `1984`            &lt;fct&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA,…
+## $ `2008`            &lt;fct&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA,…
+## $ `1996`            &lt;fct&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA,…
+## $ `1983`            &lt;fct&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA,…
+## $ `2004`            &lt;fct&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA,…
+## $ `1985`            &lt;fct&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA,…
+## $ `2003`            &lt;fct&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA,…
+## $ `1975`            &lt;fct&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA,…
+## $ `2001`            &lt;fct&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA,…
+## $ `1987`            &lt;fct&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA,…
+## $ `1990`            &lt;fct&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA,…
+## $ `1973`            &lt;fct&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA,…
+## $ `2000`            &lt;fct&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA,…
+## $ `2006`            &lt;fct&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA,…
+## $ `1978`            &lt;fct&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA,…
+## $ `1963`            &lt;fct&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA,…
+## $ `1968`            &lt;fct&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA,…
+## $ `1994`            &lt;fct&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA,…
+## $ `1961`            &lt;fct&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA,…
+## $ `1993`            &lt;fct&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA,…
+## $ `1982`            &lt;fct&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA,…
+## $ `1960`            &lt;fct&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA,…
+## $ `1965`            &lt;fct&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA,…
+## $ `1995`            &lt;fct&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA,…
+## $ `1977`            &lt;fct&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA,…
+## $ `1967`            &lt;fct&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA,…</code></pre>
+<pre class="r"><code>spreadmovies%&gt;%pivot_longer(-c(Movie.Name,Jump.Count,Jump.scare.Rating,Netflix..US.,IMDB), 
+                            names_to=&quot;Year&quot;, values_to=&quot;Director&quot;)%&gt;%na.omit()</code></pre>
+<pre><code>## # A tibble: 543 x 7
+##    Movie.Name   Jump.Count Jump.scare.Rati… Netflix..US.  IMDB Year  Director   
+##    &lt;fct&gt;             &lt;int&gt;            &lt;dbl&gt; &lt;fct&gt;        &lt;dbl&gt; &lt;chr&gt; &lt;fct&gt;      
+##  1 31                    8              2.5 No             5.1 2016  Rob Zombie 
+##  2 1408                  8              3   No             6.8 2007  Mikael Håf…
+##  3 1917                 10              2.5 No             8.5 2019  Sam Mendes 
+##  4 1922                  2              1   Yes            6.3 2017  Zak Hildit…
+##  5 [Rec]                11              3.5 No             7.4 2007  Jaume Bala…
+##  6 10 Cloverfi…          8              2.5 No             7.2 2016  Dan Tracht…
+##  7 28 Days Lat…         10              3   No             7.6 2002  Danny Boyle
+##  8 28 Weeks La…         17              3.5 No             7   2007  Juan Carlo…
+##  9 30 Days of …          9              2.5 No             6.6 2007  David Slade
+## 10 47 Meters D…         11              3   Yes            5.6 2017  Johannes R…
+## # … with 533 more rows</code></pre>
+<pre class="r"><code>glimpse(scarymovies)</code></pre>
+<pre><code>## Observations: 543
+## Variables: 7
+## $ Movie.Name        &lt;fct&gt; &quot;31&quot;, &quot;1408&quot;, &quot;1917&quot;, &quot;1922&quot;, &quot;[Rec]&quot;, &quot;10 Cloverfi…
+## $ Director          &lt;fct&gt; &quot;Rob Zombie&quot;, &quot;Mikael Håfström&quot;, &quot;Sam Mendes&quot;, &quot;Zak…
+## $ Year              &lt;int&gt; 2016, 2007, 2019, 2017, 2007, 2016, 2002, 2007, 200…
+## $ Jump.Count        &lt;int&gt; 8, 8, 10, 2, 11, 8, 10, 17, 9, 11, 14, 21, 0, 8, 2,…
+## $ Jump.scare.Rating &lt;dbl&gt; 2.5, 3.0, 2.5, 1.0, 3.5, 2.5, 3.0, 3.5, 2.5, 3.0, 4…
+## $ Netflix..US.      &lt;fct&gt; No, No, No, Yes, No, No, No, No, No, Yes, No, No, N…
+## $ IMDB              &lt;dbl&gt; 5.1, 6.8, 8.5, 6.3, 7.4, 7.2, 7.6, 7.0, 6.6, 5.6, 7…</code></pre>
+<p>Since my datasets were already pretty tidy, I made the Scary Movie dataset untidy by using pivot_wider and made each year a different column, allowing me to see which directors were in each column. Then, to make the dataset tidy again, I used pivot_longer. I ended up with a lot of NAs in the director column, so I used na.omit() to get back to the original dataset. I then compared the tidied dataset to the original dataset, and got the same amount of rows/columns as there were in the original dataset.</p>
+</div>
+<div id="joiningmerging" class="section level2">
+<h2>Joining/Merging</h2>
+<pre class="r"><code>scarytitles&lt;-scarymovies%&gt;%mutate(Movie=str_trim(`Movie.Name`,&quot;right&quot;))%&gt;%pull(`Movie.Name`) 
+movietitles&lt;-sep_ratedmovies%&gt;%mutate(Movie=str_trim(Movie,&quot;right&quot;))%&gt;%pull(Movie)
+singlemovies&lt;-movietitles%&gt;%unique()
+intersect(scarytitles, singlemovies)</code></pre>
+<pre><code>##   [1] &quot;31&quot;                                            
+##   [2] &quot;1408&quot;                                          
+##   [3] &quot;10 Cloverfield Lane&quot;                           
+##   [4] &quot;28 Days Later&quot;                                 
+##   [5] &quot;28 Weeks Later&quot;                                
+##   [6] &quot;30 Days of Night&quot;                              
+##   [7] &quot;A Quiet Place&quot;                                 
+##   [8] &quot;Abandoned, The&quot;                                
+##   [9] &quot;ABCs of Death, The&quot;                            
+##  [10] &quot;Absentia&quot;                                      
+##  [11] &quot;Abyss, The&quot;                                    
+##  [12] &quot;Alien&quot;                                         
+##  [13] &quot;Alien 3&quot;                                       
+##  [14] &quot;Alien: Covenant&quot;                               
+##  [15] &quot;Alien: Resurrection&quot;                           
+##  [16] &quot;Aliens&quot;                                        
+##  [17] &quot;Altered States&quot;                                
+##  [18] &quot;American Werewolf in London, An&quot;               
+##  [19] &quot;American Werewolf in Paris, An&quot;                
+##  [20] &quot;Amityville Horror, The&quot;                        
+##  [21] &quot;Anaconda&quot;                                      
+##  [22] &quot;Annabelle&quot;                                     
+##  [23] &quot;Annabelle: Creation&quot;                           
+##  [24] &quot;Annihilation&quot;                                  
+##  [25] &quot;Apollo 18&quot;                                     
+##  [26] &quot;Army of Darkness&quot;                              
+##  [27] &quot;Arrival&quot;                                       
+##  [28] &quot;As Above, So Below&quot;                            
+##  [29] &quot;Attack the Block&quot;                              
+##  [30] &quot;Audition&quot;                                      
+##  [31] &quot;Babadook, The&quot;                                 
+##  [32] &quot;Black Christmas&quot;                               
+##  [33] &quot;Black Swan&quot;                                    
+##  [34] &quot;Blade&quot;                                         
+##  [35] &quot;Blair Witch&quot;                                   
+##  [36] &quot;Bone Tomahawk&quot;                                 
+##  [37] &quot;Bride of Chucky&quot;                               
+##  [38] &quot;Cabin Fever&quot;                                   
+##  [39] &quot;Call, The&quot;                                     
+##  [40] &quot;Candyman&quot;                                      
+##  [41] &quot;Cape Fear&quot;                                     
+##  [42] &quot;Cargo&quot;                                         
+##  [43] &quot;Carrie&quot;                                        
+##  [44] &quot;Case 39&quot;                                       
+##  [45] &quot;Cat People&quot;                                    
+##  [46] &quot;Changeling, The&quot;                               
+##  [47] &quot;Child&#39;s Play&quot;                                  
+##  [48] &quot;Children of the Corn&quot;                          
+##  [49] &quot;Cloverfield&quot;                                   
+##  [50] &quot;Clown&quot;                                         
+##  [51] &quot;Collector, The&quot;                                
+##  [52] &quot;Cooties&quot;                                       
+##  [53] &quot;Craft, The&quot;                                    
+##  [54] &quot;Crazies, The&quot;                                  
+##  [55] &quot;Creep&quot;                                         
+##  [56] &quot;Creep 2&quot;                                       
+##  [57] &quot;Crimson Peak&quot;                                  
+##  [58] &quot;Cube&quot;                                          
+##  [59] &quot;Cujo&quot;                                          
+##  [60] &quot;Dark Shadows&quot;                                  
+##  [61] &quot;Dark Skies&quot;                                    
+##  [62] &quot;Dark Water&quot;                                    
+##  [63] &quot;Dawn of the Dead&quot;                              
+##  [64] &quot;Day of the Dead&quot;                               
+##  [65] &quot;Dead Alive&quot;                                    
+##  [66] &quot;Dead Calm&quot;                                     
+##  [67] &quot;Dead End&quot;                                      
+##  [68] &quot;Dead Silence&quot;                                  
+##  [69] &quot;Death Note&quot;                                    
+##  [70] &quot;Deathgasm&quot;                                     
+##  [71] &quot;Deep Blue Sea&quot;                                 
+##  [72] &quot;Deep Red&quot;                                      
+##  [73] &quot;Den, The&quot;                                      
+##  [74] &quot;Descent, The&quot;                                  
+##  [75] &quot;Devil&quot;                                         
+##  [76] &quot;Devil&#39;s Backbone, The&quot;                         
+##  [77] &quot;Devil&#39;s Rejects, The&quot;                          
+##  [78] &quot;Disturbia&quot;                                     
+##  [79] &quot;Dog Soldiers&quot;                                  
+##  [80] &quot;Don&#39;t Be Afraid of the Dark&quot;                   
+##  [81] &quot;Don&#39;t Breathe&quot;                                 
+##  [82] &quot;Donnie Darko&quot;                                  
+##  [83] &quot;Doom&quot;                                          
+##  [84] &quot;Dracula Untold&quot;                                
+##  [85] &quot;Dreamcatcher&quot;                                  
+##  [86] &quot;Eden Lake&quot;                                     
+##  [87] &quot;Elle&quot;                                          
+##  [88] &quot;Event Horizon&quot;                                 
+##  [89] &quot;Evil Dead&quot;                                     
+##  [90] &quot;Evil Dead II&quot;                                  
+##  [91] &quot;Evil Dead, The&quot;                                
+##  [92] &quot;Exorcism of Emily Rose, The&quot;                   
+##  [93] &quot;Exorcist III, The&quot;                             
+##  [94] &quot;Exorcist, The&quot;                                 
+##  [95] &quot;Exorcist: The Beginning&quot;                       
+##  [96] &quot;Eye, The&quot;                                      
+##  [97] &quot;Faculty, The&quot;                                  
+##  [98] &quot;Final Destination&quot;                             
+##  [99] &quot;Final Destination 2&quot;                           
+## [100] &quot;Final Destination 3&quot;                           
+## [101] &quot;Final Destination 5&quot;                           
+## [102] &quot;Final Destination, The&quot;                        
+## [103] &quot;Flatliners&quot;                                    
+## [104] &quot;Fog, The&quot;                                      
+## [105] &quot;Frailty&quot;                                       
+## [106] &quot;Freddy vs. Jason&quot;                              
+## [107] &quot;Friday the 13th&quot;                               
+## [108] &quot;Fright Night&quot;                                  
+## [109] &quot;Funny Games&quot;                                   
+## [110] &quot;Get Out&quot;                                       
+## [111] &quot;Ghost Ship&quot;                                    
+## [112] &quot;Girl Walks Home Alone at Night, A&quot;             
+## [113] &quot;Goodnight Mommy&quot;                               
+## [114] &quot;Goosebumps&quot;                                    
+## [115] &quot;Gothika&quot;                                       
+## [116] &quot;Grave Encounters&quot;                              
+## [117] &quot;Green Room&quot;                                    
+## [118] &quot;Gremlins&quot;                                      
+## [119] &quot;Grudge, The&quot;                                   
+## [120] &quot;Guest, The&quot;                                    
+## [121] &quot;Halloween&quot;                                     
+## [122] &quot;Halloween H20: 20 Years Later&quot;                 
+## [123] &quot;Halloween II&quot;                                  
+## [124] &quot;Hannibal&quot;                                      
+## [125] &quot;Hannibal Rising&quot;                               
+## [126] &quot;Happening, The&quot;                                
+## [127] &quot;Haunting, The&quot;                                 
+## [128] &quot;Hellboy&quot;                                       
+## [129] &quot;Hellraiser&quot;                                    
+## [130] &quot;Hidden&quot;                                        
+## [131] &quot;Hide and Seek&quot;                                 
+## [132] &quot;High Tension&quot;                                  
+## [133] &quot;Hills Have Eyes, The&quot;                          
+## [134] &quot;Hollow Man&quot;                                    
+## [135] &quot;Honeymoon&quot;                                     
+## [136] &quot;Horns&quot;                                         
+## [137] &quot;Hostel&quot;                                        
+## [138] &quot;Hour of the Wolf&quot;                              
+## [139] &quot;House&quot;                                         
+## [140] &quot;House of 1000 Corpses&quot;                         
+## [141] &quot;House of the Devil, The&quot;                       
+## [142] &quot;House of Wax&quot;                                  
+## [143] &quot;House on Haunted Hill&quot;                         
+## [144] &quot;Howling, The&quot;                                  
+## [145] &quot;Human Centipede, The&quot;                          
+## [146] &quot;Hush&quot;                                          
+## [147] &quot;I Am Legend&quot;                                   
+## [148] &quot;I Know What You Did Last Summer&quot;               
+## [149] &quot;Identity&quot;                                      
+## [150] &quot;Idle Hands&quot;                                    
+## [151] &quot;Inland Empire&quot;                                 
+## [152] &quot;Innkeepers, The&quot;                               
+## [153] &quot;Innocents, The&quot;                                
+## [154] &quot;Inside&quot;                                        
+## [155] &quot;Insidious&quot;                                     
+## [156] &quot;Insidious: Chapter 2&quot;                          
+## [157] &quot;Insidious: Chapter 3&quot;                          
+## [158] &quot;Insidious: The Last Key&quot;                       
+## [159] &quot;Invasion of the Body Snatchers&quot;                
+## [160] &quot;It&quot;                                            
+## [161] &quot;It Comes at Night&quot;                             
+## [162] &quot;It Follows&quot;                                    
+## [163] &quot;Jacket, The&quot;                                   
+## [164] &quot;Jacob&#39;s Ladder&quot;                                
+## [165] &quot;Jaws&quot;                                          
+## [166] &quot;Jeepers Creepers&quot;                              
+## [167] &quot;Jennifer&#39;s Body&quot;                               
+## [168] &quot;Joy Ride&quot;                                      
+## [169] &quot;Jurassic Park&quot;                                 
+## [170] &quot;Jurassic World&quot;                                
+## [171] &quot;Jurassic World: Fallen Kingdom&quot;                
+## [172] &quot;Kill List&quot;                                     
+## [173] &quot;Knock Knock&quot;                                   
+## [174] &quot;Krampus&quot;                                       
+## [175] &quot;Lake Placid&quot;                                   
+## [176] &quot;Last Exorcism, The&quot;                            
+## [177] &quot;Last House on the Left, The&quot;                   
+## [178] &quot;Last Shift&quot;                                    
+## [179] &quot;Let Me In&quot;                                     
+## [180] &quot;Lights Out&quot;                                    
+## [181] &quot;Maggie&quot;                                        
+## [182] &quot;Malice&quot;                                        
+## [183] &quot;May&quot;                                           
+## [184] &quot;Mayhem&quot;                                        
+## [185] &quot;Messengers, The&quot;                               
+## [186] &quot;Midnight Meat Train, The&quot;                      
+## [187] &quot;Mirrors&quot;                                       
+## [188] &quot;Misery&quot;                                        
+## [189] &quot;Mist, The&quot;                                     
+## [190] &quot;Mother!&quot;                                       
+## [191] &quot;Mothman Prophecies, The&quot;                       
+## [192] &quot;Mulholland Drive&quot;                              
+## [193] &quot;My Bloody Valentine&quot;                           
+## [194] &quot;Nerve&quot;                                         
+## [195] &quot;Nightmare on Elm Street 2: Freddy&#39;s Revenge, A&quot;
+## [196] &quot;Nightmare on Elm Street 3: Dream Warriors, A&quot;  
+## [197] &quot;Nightmare on Elm Street, A&quot;                    
+## [198] &quot;Ninth Gate, The&quot;                               
+## [199] &quot;Nocturnal Animals&quot;                             
+## [200] &quot;Number 23, The&quot;                                
+## [201] &quot;Oculus&quot;                                        
+## [202] &quot;Omen, The&quot;                                     
+## [203] &quot;One Hour Photo&quot;                                
+## [204] &quot;One Missed Call&quot;                               
+## [205] &quot;Only Lovers Left Alive&quot;                        
+## [206] &quot;Orphan&quot;                                        
+## [207] &quot;Orphanage, The&quot;                                
+## [208] &quot;Others, The&quot;                                   
+## [209] &quot;Pact, The&quot;                                     
+## [210] &quot;Pan&#39;s Labyrinth&quot;                               
+## [211] &quot;Pandorum&quot;                                      
+## [212] &quot;Paranormal Activity&quot;                           
+## [213] &quot;Paranormal Activity 2&quot;                         
+## [214] &quot;Paranormal Activity 3&quot;                         
+## [215] &quot;Paranormal Activity 4&quot;                         
+## [216] &quot;People Under the Stairs, The&quot;                  
+## [217] &quot;Pet Sematary&quot;                                  
+## [218] &quot;Planet Terror&quot;                                 
+## [219] &quot;Poltergeist&quot;                                   
+## [220] &quot;Pontypool&quot;                                     
+## [221] &quot;Predator&quot;                                      
+## [222] &quot;Pride and Prejudice and Zombies&quot;               
+## [223] &quot;Prince of Darkness&quot;                            
+## [224] &quot;Prometheus&quot;                                    
+## [225] &quot;Psycho&quot;                                        
+## [226] &quot;Purge, The&quot;                                    
+## [227] &quot;Purge: Anarchy, The&quot;                           
+## [228] &quot;Ravenous&quot;                                      
+## [229] &quot;Re-Animator&quot;                                   
+## [230] &quot;Red Dragon&quot;                                    
+## [231] &quot;Repulsion&quot;                                     
+## [232] &quot;Resident Evil&quot;                                 
+## [233] &quot;Resolution&quot;                                    
+## [234] &quot;Restoration&quot;                                   
+## [235] &quot;Return of the Living Dead, The&quot;                
+## [236] &quot;Ring Two, The&quot;                                 
+## [237] &quot;Ring, The&quot;                                     
+## [238] &quot;Rosemary&#39;s Baby&quot;                               
+## [239] &quot;Sacrament, The&quot;                                
+## [240] &quot;Saw&quot;                                           
+## [241] &quot;Saw II&quot;                                        
+## [242] &quot;Saw III&quot;                                       
+## [243] &quot;Saw IV&quot;                                        
+## [244] &quot;Saw V&quot;                                         
+## [245] &quot;Saw VI&quot;                                        
+## [246] &quot;Scary Movie&quot;                                   
+## [247] &quot;Scary Movie 2&quot;                                 
+## [248] &quot;Scream&quot;                                        
+## [249] &quot;Scream 2&quot;                                      
+## [250] &quot;Scream 3&quot;                                      
+## [251] &quot;Scream 4&quot;                                      
+## [252] &quot;Secret Window&quot;                                 
+## [253] &quot;Session 9&quot;                                     
+## [254] &quot;Seven&quot;                                         
+## [255] &quot;Shaun of the Dead&quot;                             
+## [256] &quot;Shining, The&quot;                                  
+## [257] &quot;Shutter Island&quot;                                
+## [258] &quot;Signs&quot;                                         
+## [259] &quot;Silence of the Lambs, The&quot;                     
+## [260] &quot;Silent Hill&quot;                                   
+## [261] &quot;Silver Bullet&quot;                                 
+## [262] &quot;Sinister&quot;                                      
+## [263] &quot;Sixth Sense, The&quot;                              
+## [264] &quot;Skeleton Key, The&quot;                             
+## [265] &quot;Sleepaway Camp&quot;                                
+## [266] &quot;Sleepy Hollow&quot;                                 
+## [267] &quot;Slither&quot;                                       
+## [268] &quot;Species&quot;                                       
+## [269] &quot;Sphere&quot;                                        
+## [270] &quot;Splinter&quot;                                      
+## [271] &quot;Split&quot;                                         
+## [272] &quot;Spring&quot;                                        
+## [273] &quot;Stake Land&quot;                                    
+## [274] &quot;Stir of Echoes&quot;                                
+## [275] &quot;Strangers, The&quot;                                
+## [276] &quot;Sunshine&quot;                                      
+## [277] &quot;Super 8&quot;                                       
+## [278] &quot;Suspiria&quot;                                      
+## [279] &quot;Tale of Two Sisters, A&quot;                        
+## [280] &quot;Texas Chainsaw 3D&quot;                             
+## [281] &quot;Texas Chainsaw Massacre, The&quot;                  
+## [282] &quot;Texas Chainsaw Massacre: The Beginning, The&quot;   
+## [283] &quot;The Butterfly Effect&quot;                          
+## [284] &quot;The Cloverfield Paradox&quot;                       
+## [285] &quot;The Conjuring 2&quot;                               
+## [286] &quot;The Devil&#39;s Candy&quot;                             
+## [287] &quot;The Final Girls&quot;                               
+## [288] &quot;The Gallows&quot;                                   
+## [289] &quot;The Gift&quot;                                      
+## [290] &quot;The Girl with All the Gifts&quot;                   
+## [291] &quot;The Green Inferno&quot;                             
+## [292] &quot;The Mummy&quot;                                     
+## [293] &quot;The Neon Demon&quot;                                
+## [294] &quot;The Purge: Election Year&quot;                      
+## [295] &quot;The Shallows&quot;                                  
+## [296] &quot;The Shape of Water&quot;                            
+## [297] &quot;The Voices&quot;                                    
+## [298] &quot;The Void&quot;                                      
+## [299] &quot;The Wailing&quot;                                   
+## [300] &quot;The Witch&quot;                                     
+## [301] &quot;Thirteen Ghosts&quot;                               
+## [302] &quot;Timecrimes&quot;                                    
+## [303] &quot;Train to Busan&quot;                                
+## [304] &quot;Tremors&quot;                                       
+## [305] &quot;Triangle&quot;                                      
+## [306] &quot;Trick &#39;r Treat&quot;                                
+## [307] &quot;Tusk&quot;                                          
+## [308] &quot;Urban Legend&quot;                                  
+## [309] &quot;V/H/S&quot;                                         
+## [310] &quot;V/H/S/2&quot;                                       
+## [311] &quot;Vacancy&quot;                                       
+## [312] &quot;Victor Frankenstein&quot;                           
+## [313] &quot;Wait Until Dark&quot;                               
+## [314] &quot;Wes Craven&#39;s New Nightmare&quot;                    
+## [315] &quot;What Lies Beneath&quot;                             
+## [316] &quot;When a Stranger Calls&quot;                         
+## [317] &quot;Wicker Man, The&quot;                               
+## [318] &quot;Wolf Creek&quot;                                    
+## [319] &quot;Wolfman, The&quot;                                  
+## [320] &quot;Woman in Black, The&quot;                           
+## [321] &quot;World War Z&quot;                                   
+## [322] &quot;Wrong Turn&quot;                                    
+## [323] &quot;You&#39;re Next&quot;                                   
+## [324] &quot;Zodiac&quot;                                        
+## [325] &quot;Zombieland&quot;</code></pre>
+<pre class="r"><code>#trimmed the extra spaces at the end of movie titles 
+sep_ratedmovies2&lt;-sep_ratedmovies%&gt;%mutate(Movie=str_trim(Movie,&quot;right&quot;))
+scarymovies2&lt;-scarymovies%&gt;%mutate(Movie=str_trim(`Movie.Name`,&quot;right&quot;))%&gt;%
+  mutate_at(vars(Year),as.character)
+
+joinedmovies&lt;-left_join(sep_ratedmovies2, scarymovies2, by=c(&quot;Movie&quot;,&quot;Year&quot;))%&gt;%
+  na.omit()%&gt;%select(-Movie.Name)
+glimpse(joinedmovies)</code></pre>
+<pre><code>## Observations: 5,441
+## Variables: 12
+## $ Movie.ID          &lt;int&gt; 152077, 152077, 152077, 152077, 152077, 152077, 152…
+## $ Movie             &lt;chr&gt; &quot;10 Cloverfield Lane&quot;, &quot;10 Cloverfield Lane&quot;, &quot;10 C…
+## $ Year              &lt;chr&gt; &quot;2016&quot;, &quot;2016&quot;, &quot;2016&quot;, &quot;2016&quot;, &quot;2016&quot;, &quot;2016&quot;, &quot;20…
+## $ Genres            &lt;fct&gt; Thriller, Thriller, Thriller, Thriller, Thriller, T…
+## $ User.ID           &lt;int&gt; 15, 98, 122, 125, 212, 249, 279, 306, 352, 408, 448…
+## $ Rating            &lt;dbl&gt; 5.0, 4.5, 4.0, 4.0, 3.0, 4.0, 3.0, 2.5, 4.0, 4.0, 2…
+## $ Timestamp         &lt;int&gt; 1510572535, 1532458398, 1461561222, 1474425167, 149…
+## $ Director          &lt;fct&gt; Dan Trachtenberg, Dan Trachtenberg, Dan Trachtenber…
+## $ Jump.Count        &lt;int&gt; 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, …
+## $ Jump.scare.Rating &lt;dbl&gt; 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2…
+## $ Netflix..US.      &lt;fct&gt; No, No, No, No, No, No, No, No, No, No, No, No, No,…
+## $ IMDB              &lt;dbl&gt; 7.2, 7.2, 7.2, 7.2, 7.2, 7.2, 7.2, 7.2, 7.2, 7.2, 7…</code></pre>
+<p>First, I wanted to make sure that when the datasets were joined, there were more than 50 observations. So, I joined the different movie titles with the scary titles and got over 300 movies. Then, I used a left-join with the rated movie dataset on the left because it would allow me to start off with a neater dataset, in regards to the column positions. Before using na.omit() there were 5,648 entries, and after, there are 5,441 entries. I used na.omit() to delete any movies that were not in the other dataset because I want to compare scary movie raties to their regular ratings. Some scary movies were not in the regular rated dataset, so therefore I would not be able to compare the different ratings.</p>
+</div>
+<div id="wrangling" class="section level2">
+<h2>Wrangling</h2>
+<pre class="r"><code>joinedmovies%&gt;%group_by(Movie)%&gt;%mutate(&quot;Mean Rating&quot;=mean(Rating),
+  &quot;Mean Jump Scare Rating&quot;=mean(Jump.scare.Rating),&quot;Mean Jump Count&quot;=mean(Jump.Count), 
+  &quot;Mean IMDB Rating&quot;=mean(IMDB))%&gt;%select(Movie, Year, &quot;Mean Rating&quot;, &quot;Mean Jump Scare Rating&quot;, 
+                                          &quot;Mean Jump Count&quot;, &quot;Mean IMDB Rating&quot;, Genres, Director)%&gt;%
+                                           arrange(Movie)%&gt;%distinct()</code></pre>
+<pre><code>## # A tibble: 336 x 8
+## # Groups:   Movie [328]
+##    Movie Year  `Mean Rating` `Mean Jump Scar… `Mean Jump Coun… `Mean IMDB Rati…
+##    &lt;chr&gt; &lt;chr&gt;         &lt;dbl&gt;            &lt;dbl&gt;            &lt;dbl&gt;            &lt;dbl&gt;
+##  1 10 C… 2016           3.68              2.5                8              7.2
+##  2 1408  2007           3.16              3                  8              6.8
+##  3 28 D… 2002           3.97              3                 10              7.6
+##  4 28 W… 2007           3.60              3.5               17              7  
+##  5 30 D… 2007           3.18              2.5                9              6.6
+##  6 31    2016           3.5               2.5                8              5.1
+##  7 A Qu… 2018           2.75              4                 14              7.5
+##  8 Aban… 2015           2                 3.5               21              5  
+##  9 ABCs… 2012           3.5               0                  0              4.7
+## 10 Abse… 2011           3.5               2                  8              5.8
+## # … with 326 more rows, and 2 more variables: Genres &lt;fct&gt;, Director &lt;fct&gt;</code></pre>
+<pre class="r"><code>joinedmovies%&gt;%select(Movie, Director, Genres)%&gt;%summarize_all(n_distinct)</code></pre>
+<pre><code>##   Movie Director Genres
+## 1   328      241     90</code></pre>
+<pre class="r"><code>joinedmovies%&gt;%group_by(Year, Movie)%&gt;%filter(grepl(&quot;Horror|Thriller&quot;,Genres))%&gt;%summarize(n=n(),
+  &quot;Mean Rating&quot;=mean(Rating), &quot;SD Rating&quot;=sd(Rating), &quot;Min Rating&quot;=min(Rating), 
+  &quot;Max Rating&quot;=max(Rating))%&gt;%arrange(desc(`Mean Rating`))</code></pre>
+<pre><code>## # A tibble: 327 x 7
+## # Groups:   Year [52]
+##    Year  Movie             n `Mean Rating` `SD Rating` `Min Rating` `Max Rating`
+##    &lt;chr&gt; &lt;chr&gt;         &lt;int&gt;         &lt;dbl&gt;       &lt;dbl&gt;        &lt;dbl&gt;        &lt;dbl&gt;
+##  1 2013  Only Lovers …     1          5         NA              5            5  
+##  2 2015  Deathgasm         1          5         NA              5            5  
+##  3 2016  The Girl wit…     1          5         NA              5            5  
+##  4 2002  Dog Soldiers      3          4.67       0.577          4            5  
+##  5 1968  Hour of the …     2          4.5        0              4.5          4.5
+##  6 1987  Prince of Da…     1          4.5       NA              4.5          4.5
+##  7 2011  Final Destin…     1          4.5       NA              4.5          4.5
+##  8 2011  Kill List         1          4.5       NA              4.5          4.5
+##  9 2013  Oculus            1          4.5       NA              4.5          4.5
+## 10 2013  V/H/S/2           1          4.5       NA              4.5          4.5
+## # … with 317 more rows</code></pre>
+<pre class="r"><code>joinedmovies%&gt;%group_by(Year, Movie, Director)%&gt;%summarize(&quot;Mean Jump Count&quot;=mean(Jump.Count), 
+  &quot;Mean Rating&quot;=mean(Rating),&quot;Mean Jump Scare Rating&quot;=mean(Jump.scare.Rating),
+  &quot;Mean IMDB Rating&quot;=mean(IMDB))%&gt;%arrange(desc(`Mean Jump Count`))</code></pre>
+<pre><code>## # A tibble: 336 x 7
+## # Groups:   Year, Movie [336]
+##    Year  Movie Director `Mean Jump Coun… `Mean Rating` `Mean Jump Scar…
+##    &lt;chr&gt; &lt;chr&gt; &lt;fct&gt;               &lt;dbl&gt;         &lt;dbl&gt;            &lt;dbl&gt;
+##  1 1987  Evil… Sam Rai…               27          4.04              4  
+##  2 2007  Mess… Danny P…               27          2.5               4.5
+##  3 2009  Haun… Peter C…               26          2.5               4.5
+##  4 2003  Fred… Ronny Yu               24          2.33              4  
+##  5 2010  Insi… James W…               24          2.67              5  
+##  6 2000  Scre… Wes Cra…               23          2.67              4  
+##  7 2004  Grud… Takashi…               23          2.3               4  
+##  8 2009  Frid… Marcus …               23          3                 4  
+##  9 2017  Anna… David F…               23          4                 4.5
+## 10 2017  It    Andy Mu…               23          3.33              4  
+## # … with 326 more rows, and 1 more variable: `Mean IMDB Rating` &lt;dbl&gt;</code></pre>
+<pre class="r"><code>joinedmovies%&gt;%group_by(Year, Movie, Director)%&gt;%
+  summarize(max.Rating=max(Rating), max.IMDB=max(IMDB))%&gt;%
+  arrange(desc(max.IMDB))</code></pre>
+<pre><code>## # A tibble: 336 x 5
+## # Groups:   Year, Movie [336]
+##    Year  Movie                     Director           max.Rating max.IMDB
+##    &lt;chr&gt; &lt;chr&gt;                     &lt;fct&gt;                   &lt;dbl&gt;    &lt;dbl&gt;
+##  1 1991  Silence of the Lambs, The Jonathan Demme              5      8.6
+##  2 1995  Seven                     David Fincher               5      8.6
+##  3 1960  Psycho                    Alfred Hitchcock            5      8.5
+##  4 1979  Alien                     Ridley Scott                5      8.4
+##  5 1980  Shining, The              Stanley Kubrick             5      8.4
+##  6 1986  Aliens                    James Cameron               5      8.4
+##  7 2006  Pan&#39;s Labyrinth           Guillermo del Toro          5      8.2
+##  8 1993  Jurassic Park             Steven Spielberg            5      8.1
+##  9 1999  Sixth Sense, The          M. Night Shyamalan          5      8.1
+## 10 2010  Shutter Island            Martin Scorsese             5      8.1
+## # … with 326 more rows</code></pre>
+<pre class="r"><code>joinedmovies%&gt;%select(Rating, Jump.scare.Rating, Jump.Count, IMDB)%&gt;%cor</code></pre>
+<pre><code>##                       Rating Jump.scare.Rating Jump.Count       IMDB
+## Rating             1.0000000        -0.1760131 -0.1466933  0.4429800
+## Jump.scare.Rating -0.1760131         1.0000000  0.8990534 -0.3645429
+## Jump.Count        -0.1466933         0.8990534  1.0000000 -0.3123954
+## IMDB               0.4429800        -0.3645429 -0.3123954  1.0000000</code></pre>
+<p>Since some movies were made in multiple years, I often grouped the datasets by Movie and Year. I first just wanted to get the mean rating, jump scare rating, jump count and IMDB rating for all the movies. Then I just wanted to see how many directors and genres there were. I have to say that the number of genres isn’t really representative of the actual number of different genres there were because some movies had multiple genres associated with them and some only had one. Some movies were rated more than once by different users, so I then saw the minimum and maximum ratings for those movies, along with the mean and standard deviation of those ratings.</p>
+<p>For the next line of code, I wanted to see the different ratings for the higher jump counts and saw that even though there might have been a high jump scare rating, the regular/IMDB ratings weren’t always that high as well. It got me to thinking that perhaps people who don’t like scary movies might have been rating those movies poorly and bringing their “normal” rating down. Then I wanted to see which director of what movie had the highest regular and IMDB rating, which was The Silence of the Lambs directed by Johnathan Demme. For the correlation matrix, I did predict correctly that there was going to be a relatively high positive correlation between jump count and jump scare rating, but there were not strong correlations between the other variables at all, which I did not expect.</p>
+<p>#Visualizations</p>
+<pre class="r"><code>#only selected the following 4 numeric variables in the code because the other numeric 
+#variables (Movie.ID, User.ID, Timestamp) were just classification numbers for each movie, 
+#each user that rated a movie or a timestamp for when the movie was rated, respectively. 
+joinedmovies%&gt;%select(Jump.Count, Jump.scare.Rating, Rating, IMDB)%&gt;%
+  cor%&gt;%as.data.frame%&gt;%rownames_to_column%&gt;%pivot_longer(-1)%&gt;%
+  ggplot(aes(rowname,name,fill=value))+geom_tile()+geom_text(aes(label=round(value,2)))+
+  xlab(&quot;&quot;)+ylab(&quot;&quot;)+scale_fill_gradient2(low=&quot;purple&quot;,high=&quot;pink&quot;)</code></pre>
+<p><img src="/project1_files/figure-html/unnamed-chunk-5-1.png" width="672" /></p>
+<pre class="r"><code>joinedmovies%&gt;%ggplot(aes(x=Jump.Count, y=Jump.scare.Rating))+geom_count(stat=&quot;summary&quot;)+
+  geom_smooth(method=lm, color=&quot;purple&quot;)+scale_x_continuous(breaks=seq(0,30,5))+
+  scale_y_continuous(breaks=seq(0,5,1))+ggtitle(&quot;Jump Count vs. Jump Scare Rating&quot;)+
+  xlab(&quot;Jump Count&quot;)+ylab(&quot;Jump Scare Rating&quot;)+theme(plot.title = element_text(hjust = 0.5), 
+  plot.background = element_rect(fill = &quot;light blue&quot;),
+  panel.background=element_rect(colour = &quot;blue&quot;))</code></pre>
+<pre><code>## No summary function supplied, defaulting to `mean_se()</code></pre>
+<p><img src="/project1_files/figure-html/unnamed-chunk-5-2.png" width="672" /></p>
+<pre class="r"><code>joinedmovies%&gt;%ggplot(aes(x=Jump.Count, y=IMDB, color=Jump.scare.Rating))+geom_count()+
+  scale_size_area()+geom_smooth(method=lm, color=&quot;darkgreen&quot;)+
+  scale_x_continuous(breaks=seq(0,30,5))+scale_y_continuous(breaks=seq(0,10,1))+ 
+  ggtitle(&quot;Jump Count vs. IMDB&quot;)+xlab(&quot;Jump Count&quot;)+ylab(&quot;IMDB Rating&quot;)+
+  theme(plot.title = element_text(hjust = 0.5))</code></pre>
+<p><img src="/project1_files/figure-html/unnamed-chunk-5-3.png" width="672" /></p>
+<p>When I ran the correlation heatmap, I was happy to see that there was a very strong positive correlation between Jump count and Jump scare rating, since I had expected that. People most likely rated a movie higher on the Jump scare rating if there were more jump counts. However, I was very surprised to see that there wasn’t a high or positive correlation between jump count and rating or jump count and IMDB rating. I thought that if there was a higher jump count, and therefore higher jump scare rating, the normal ratings would have been high as well, but instead they were lower the higher the jump count was.</p>
+<p>My first plot shows the very high correlation between the jump count and jump scare rating. The second plot was more interesting to me while there was a slight negative correlation between jump count and IMDB, you could also see that even a lot of the jump scare ratings that were very low were close to the areas of high IMDB ratings and higher in areas of low IMDB rating. This also shows that jump scare rating and IMDB ratings also had a negative correlation.</p>
+<p>#Dimensionality Reduction</p>
+<pre class="r"><code>library(cluster)
+numericmovies&lt;-joinedmovies%&gt;%select(Jump.Count, Jump.scare.Rating, Rating, IMDB)
+
+#processing data
+scaledmovies&lt;-numericmovies%&gt;%scale
+
+#choosing number of clusters
+sil_width&lt;-vector() #empty vector to hold mean sil width
+for(i in 2:10){
+  kms &lt;- kmeans(scaledmovies,centers=i) #compute k-means solution
+  sil &lt;- silhouette(kms$cluster,dist(scaledmovies)) #get sil widths
+  sil_width[i]&lt;-mean(sil[,3]) #take averages (higher is better)
+}
+ggplot()+geom_line(aes(x=1:10,y=sil_width))+scale_x_continuous(name=&quot;k&quot;,breaks=1:10)</code></pre>
+<pre><code>## Warning: Removed 1 rows containing missing values (geom_path).</code></pre>
+<p><img src="/project1_files/figure-html/unnamed-chunk-6-1.png" width="672" /></p>
+<pre class="r"><code>#running cluster analysis 
+kmeans&lt;-scaledmovies%&gt;%kmeans(2)
+glimpse(kmeans)</code></pre>
+<pre><code>## List of 9
+##  $ cluster     : Named int [1:5441] 2 2 2 2 2 2 2 2 2 2 ...
+##   ..- attr(*, &quot;names&quot;)= chr [1:5441] &quot;128&quot; &quot;129&quot; &quot;130&quot; &quot;131&quot; ...
+##  $ centers     : num [1:2, 1:4] -0.733 0.751 -0.797 0.817 0.293 ...
+##   ..- attr(*, &quot;dimnames&quot;)=List of 2
+##   .. ..$ : chr [1:2] &quot;1&quot; &quot;2&quot;
+##   .. ..$ : chr [1:4] &quot;Jump.Count&quot; &quot;Jump.scare.Rating&quot; &quot;Rating&quot; &quot;IMDB&quot;
+##  $ totss       : num 21760
+##  $ withinss    : num [1:2] 5614 8257
+##  $ tot.withinss: num 13871
+##  $ betweenss   : num 7889
+##  $ size        : int [1:2] 2753 2688
+##  $ iter        : int 1
+##  $ ifault      : int 0
+##  - attr(*, &quot;class&quot;)= chr &quot;kmeans&quot;</code></pre>
+<pre class="r"><code>kmeans$size</code></pre>
+<pre><code>## [1] 2753 2688</code></pre>
+<pre class="r"><code>#interpret clusters and overall fit 
+final&lt;-joinedmovies%&gt;%mutate(cluster=as.factor(kmeans$cluster))%&gt;%
+  select(-Timestamp, -Movie.ID, -User.ID, -Genres, -Director)
+glimpse(final)</code></pre>
+<pre><code>## Observations: 5,441
+## Variables: 8
+## $ Movie             &lt;chr&gt; &quot;10 Cloverfield Lane&quot;, &quot;10 Cloverfield Lane&quot;, &quot;10 C…
+## $ Year              &lt;chr&gt; &quot;2016&quot;, &quot;2016&quot;, &quot;2016&quot;, &quot;2016&quot;, &quot;2016&quot;, &quot;2016&quot;, &quot;20…
+## $ Rating            &lt;dbl&gt; 5.0, 4.5, 4.0, 4.0, 3.0, 4.0, 3.0, 2.5, 4.0, 4.0, 2…
+## $ Jump.Count        &lt;int&gt; 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, …
+## $ Jump.scare.Rating &lt;dbl&gt; 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2…
+## $ Netflix..US.      &lt;fct&gt; No, No, No, No, No, No, No, No, No, No, No, No, No,…
+## $ IMDB              &lt;dbl&gt; 7.2, 7.2, 7.2, 7.2, 7.2, 7.2, 7.2, 7.2, 7.2, 7.2, 7…
+## $ cluster           &lt;fct&gt; 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, …</code></pre>
+<pre class="r"><code>confmat&lt;-final%&gt;%group_by(Year,Movie)%&gt;%count(cluster)%&gt;%arrange(desc(n))%&gt;%
+  pivot_wider(names_from=&quot;cluster&quot;,values_from=&quot;n&quot;,values_fill = list(&#39;n&#39;=0))
+glimpse(confmat)</code></pre>
+<pre><code>## Observations: 336
+## Variables: 4
+## Groups: Year, Movie [336]
+## $ Year  &lt;chr&gt; &quot;1991&quot;, &quot;1995&quot;, &quot;1993&quot;, &quot;1999&quot;, &quot;1979&quot;, &quot;1986&quot;, &quot;1980&quot;, &quot;2001&quot;,…
+## $ Movie &lt;chr&gt; &quot;Silence of the Lambs, The&quot;, &quot;Seven&quot;, &quot;Jurassic Park&quot;, &quot;Sixth S…
+## $ `1`   &lt;int&gt; 279, 203, 40, 175, 0, 0, 109, 109, 86, 83, 80, 0, 0, 64, 0, 62,…
+## $ `2`   &lt;int&gt; 0, 0, 198, 4, 146, 126, 0, 0, 5, 0, 1, 77, 70, 0, 63, 0, 0, 62,…</code></pre>
+<pre class="r"><code>#visualize 
+##install.packages((&quot;GGally&quot;))
+library(GGally)</code></pre>
+<pre><code>## Registered S3 method overwritten by &#39;GGally&#39;:
+##   method from   
+##   +.gg   ggplot2</code></pre>
+<pre><code>## 
+## Attaching package: &#39;GGally&#39;</code></pre>
+<pre><code>## The following object is masked from &#39;package:dplyr&#39;:
+## 
+##     nasa</code></pre>
+<pre class="r"><code>ggplot(final, aes(x=Jump.Count,y=IMDB, color=cluster))+geom_point()</code></pre>
+<p><img src="/project1_files/figure-html/unnamed-chunk-6-2.png" width="672" /></p>
+<p>I performed a kmeans cluster analysis of my data. After finding the most optimal silhouette width, which was 2, I ran the kmeans. Cluster 1 (n = 2752) was grouped mostly by scary movies that had a high jump count and a low IMDB rating. Cluster 2 (n = 2689) was grouped mostly around scary movies that had lower jump counts and higher IMDB ratings. Considering that my datasets were mostly looking at scary movies and their ratings, its understandable that the slightly larger cluster of movies is more on the right side of the graph because people that don’t like scary movies, like me, might rate a movie that is too jump-scary to be a poor or just “okay” movie.</p>
+</div>
+
+              <hr>
+              <div class="related-posts">
+                <h5>Related Posts</h5>
+                
+              </div>
+            </div>
+          </div>
+          <hr>
+        <div class="disqus">
+  <div id="disqus_thread"></div>
+  <script type="text/javascript">
+
+    (function() {
+      
+      
+      if (window.location.hostname == "localhost")
+        return;
+
+      var disqus_shortname = '';
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+  </script>
+  <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+  <a href="http://disqus.com/" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+</div>
+        </div>
+      </div>
+      
+    </div>
+
+    
+    <footer>
+  <div id="footer">
+    <div class="container">
+      <p class="text-muted">&copy; All rights reserved. Powered by <a href="https://gohugo.io/">Hugo</a> and
+      <a href="http://www.github.com/nurlansu/hugo-sustain/">sustain</a> with ♥</p>
+    </div>
+  </div>
+</footer>
+<div class="footer"></div>
+
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+<script src="/js/docs.min.js"></script>
+<script src="/js/main.js"></script>
+
+<script src="/js/ie10-viewport-bug-workaround.js"></script>
+
+
+    
+  </body>
+</html>

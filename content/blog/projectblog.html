@@ -1,0 +1,51 @@
+---
+title: "Memories"
+output: html_document
+date: "2020-05-15"
+author: "Tylana La"
+---
+
+
+
+<p>My years in undergrad are coming to an end. I’ve had a lot of good times and some <em>not so good</em> ones (organic chemistry, you have left me scarred 😖). I’m ready to close this chapter in my life and move on to the next. But before I go, I want to reminisce on some of my favorite moments from college using R and Python (afterall, I have one last very important project to do before undergrad is <strong><em>actually</em></strong> over).</p>
+<p>First off, let me explain how all this <em>coding</em> works. The “reticulate” package I’ve called for allows Python and R to interact in one place. So this first chunk is in R and I assign what time I’m talking about to the “time” object.</p>
+<pre class="r"><code>library(reticulate)
+time1&lt;-&quot;When I first joined college,&quot;</code></pre>
+<p>Then, in this next chunk, which is now Python, I assign my memory to the memory object, which will be different for each memory I’m talking about; but in this case, its “spo”. At the end of this chunk, I tell R and Python to interact, using the command “print(r.”r object“,”python object“)” to get the full message, which will output into a separate chunk. I do this exact process for the rest of my memories, so enjoy reading some of my favorite moments in college!</p>
+<pre class="python"><code>spo=&quot;I never thought I would join a sorority. But in my first semester here, that&#39;s what I did! I met my line sisters and mom, who are the craziest bunch of people I&#39;ve met. That first semester was a wild one, and I wouldn&#39;t have wanted to do it with any other group of girls. To all the late nights and all the fun nights, I won&#39;t forget them.  And I also got a big sis and a big bro, both of whom I hold near and dear to my heart. They have supported me through every step of my LABORIOUS pre-med journey (which is still going) with lots of food/boba and lots of love. Thank you for everything!&quot;
+
+print(r.time1,spo)</code></pre>
+<pre><code>## When I first joined college, I never thought I would join a sorority. But in my first semester here, that&#39;s what I did! I met my line sisters and mom, who are the craziest bunch of people I&#39;ve met. That first semester was a wild one, and I wouldn&#39;t have wanted to do it with any other group of girls. To all the late nights and all the fun nights, I won&#39;t forget them.  And I also got a big sis and a big bro, both of whom I hold near and dear to my heart. They have supported me through every step of my LABORIOUS pre-med journey (which is still going) with lots of food/boba and lots of love. Thank you for everything!</code></pre>
+<p><img src="/blog/projectblog_files/formal1.jpg" style="width:50.0%" />
+<img src="/blog/projectblog_files/formal2.jpg" style="width:50.0%" /></p>
+<pre class="r"><code>time2&lt;-&quot;Then a semester later,&quot;</code></pre>
+<pre class="python"><code>bff=&quot;I met my best friends. We met in FIG and have spent countless nights studying together, ate so many meals together and suported each other through our MANY breakdowns (lol). HAHA I will never forget the one time we were studying for ochem in Jester and slept in the flag room OR our never ending boba runs 😫. I can&#39;t wait to see where the next chapter of our lives takes us, and I know deep down that these people are going to be my lifelong friends. I LOVE YOU GUYS ❤️&quot; 
+
+print(r.time2,bff)</code></pre>
+<pre><code>## Then a semester later, I met my best friends. We met in FIG and have spent countless nights studying together, ate so many meals together and suported each other through our MANY breakdowns (lol). HAHA I will never forget the one time we were studying for ochem in Jester and slept in the flag room OR our never ending boba runs 😫. I can&#39;t wait to see where the next chapter of our lives takes us, and I know deep down that these people are going to be my lifelong friends. I LOVE YOU GUYS ❤️</code></pre>
+<p><img src="/blog/projectblog_files/bff.jpeg" style="width:50.0%" /></p>
+<pre class="r"><code>time3&lt;-&quot;Then ANOTHER semester later,&quot;</code></pre>
+<pre class="python"><code>bleh=&quot;I met a boy (LOL) and I&#39;m still dating him to this day (it&#39;ll be three years this September!!!). He is super sweet, caring and very loving. He stuck with me when I was at my lowest and has also been there for all the good times too. I will forever thank the beings above for bringing him into my life. I&#39;ll keep it short so anyone reading doesn&#39;t get disgusted haha. Thanks bub for being in my life!&quot;
+
+print(r.time3,bleh)</code></pre>
+<pre><code>## Then ANOTHER semester later, I met a boy (LOL) and I&#39;m still dating him to this day (it&#39;ll be three years this September!!!). He is super sweet, caring and very loving. He stuck with me when I was at my lowest and has also been there for all the good times too. I will forever thank the beings above for bringing him into my life. I&#39;ll keep it short so anyone reading doesn&#39;t get disgusted haha. Thanks bub for being in my life!</code></pre>
+<p><img src="/blog/projectblog_files/bleh.jpeg" style="width:50.0%" /></p>
+<pre class="python"><code>litto=&quot;I got myself a little! Somehow we are completely opposite of each other and also the exact same. She has brought so many laughs and smiles into my life. She is someone that I know I&#39;ll always be close to even if we don&#39;t get to see each other all the time. I won&#39;t forget all of our gossiping and ranting to each other about random things. I hope you don&#39;t miss me too much because I&#39;m only a phone call or text away! I love you litto ❤️&quot;
+
+print(r.time3,litto)</code></pre>
+<pre><code>## Then ANOTHER semester later, I got myself a little! Somehow we are completely opposite of each other and also the exact same. She has brought so many laughs and smiles into my life. She is someone that I know I&#39;ll always be close to even if we don&#39;t get to see each other all the time. I won&#39;t forget all of our gossiping and ranting to each other about random things. I hope you don&#39;t miss me too much because I&#39;m only a phone call or text away! I love you litto ❤️</code></pre>
+<p><img src="/blog/projectblog_files/formal3.jpeg" style="width:50.0%" /></p>
+<pre class="r"><code>time4&lt;-&quot;In the last two years,&quot;</code></pre>
+<pre class="python"><code>spo2=&quot;I&#39;ve been lucky enough to give back to my sorority. Last year, I got to be one of the philanthropy directors and helped raise awareness for domestic violence. My co-chair and I raised almost $2000, along with some homemade care packages, to donate to SAFE (Stop Abuse For Everyone). Then, in this past year, I was honored to be Vice President. I got to help run a whole freaking organization! But my favorite thing was planning events to promote sisterhood. I value being able to be VP and have learned a lot through the experience of both positions. Thanks to Sigmas for everything.&quot; 
+
+print(r.time4,spo2)</code></pre>
+<pre><code>## In the last two years, I&#39;ve been lucky enough to give back to my sorority. Last year, I got to be one of the philanthropy directors and helped raise awareness for domestic violence. My co-chair and I raised almost $2000, along with some homemade care packages, to donate to SAFE (Stop Abuse For Everyone). Then, in this past year, I was honored to be Vice President. I got to help run a whole freaking organization! But my favorite thing was planning events to promote sisterhood. I value being able to be VP and have learned a lot through the experience of both positions. Thanks to Sigmas for everything.</code></pre>
+<p><img src="/blog/projectblog_files/service.jpeg" style="width:50.0%" />
+<img src="/blog/projectblog_files/top3.jpeg" style="width:50.0%" /></p>
+<pre class="r"><code>time5&lt;-&quot;And now, its the end.&quot;</code></pre>
+<pre class="python"><code>theend=&quot;This last semester was... interesting. Covid definitely sent us for a real one. Having the semester cut short was kind of sad. We didn&#39;t get the last hurrah that we thought we were gonna have. But at the end of the day, it&#39;s okay. I have made so many memories throughout the last four years. I&#39;m ready to move on to the next chapter in my life (hopefully medical school soon!!). This might be the end of college, but this isnt the end of all these friendships I&#39;ve made. I will continue to cherish every memory and relationship I&#39;ve created.&quot;
+
+print(r.time5,theend)</code></pre>
+<pre><code>## And now, its the end. This last semester was... interesting. Covid definitely sent us for a real one. Having the semester cut short was kind of sad. We didn&#39;t get the last hurrah that we thought we were gonna have. But at the end of the day, it&#39;s okay. I have made so many memories throughout the last four years. I&#39;m ready to move on to the next chapter in my life (hopefully medical school soon!!). This might be the end of college, but this isnt the end of all these friendships I&#39;ve made. I will continue to cherish every memory and relationship I&#39;ve created.</code></pre>
+<p><img src="/blog/projectblog_files/grad3.jpg" style="width:60.0%" /></p>
+<p>Here’s to the class of 2020! Special thanks to UT for cultivating a great college experience! Thanks for reading!</p>

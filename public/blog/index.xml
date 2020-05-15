@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Blogs on Tylana La</title>
+    <link>/blog/</link>
+    <description>Recent content in Blogs on Tylana La</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-US</language>
+    <lastBuildDate>Fri, 15 May 2020 00:00:00 +0000</lastBuildDate>
+    
+	<atom:link href="/blog/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>Memories</title>
+      <link>/blog/projectblog/</link>
+      <pubDate>Fri, 15 May 2020 00:00:00 +0000</pubDate>
+      
+      <guid>/blog/projectblog/</guid>
+      <description>My years in undergrad are coming to an end. I’ve had a lot of good times and some not so good ones (organic chemistry, you have left me scarred 😖). I’m ready to close this chapter in my life and move on to the next. But before I go, I want to reminisce on some of my favorite moments from college using R and Python (afterall, I have one last very important project to do before undergrad is actually over).</description>
+    </item>
+    
+  </channel>
+</rss>

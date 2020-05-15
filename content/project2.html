@@ -1,0 +1,432 @@
+---
+title: 'Project 2: Modeling, Testing, and Predicting'
+author: "Tylana La - tml2322"
+date: '05/01/2020'
+output:
+  html_document:
+    toc: yes
+    toc_float:
+      collapsed: no
+      smooth_scroll: yes
+---
+
+
+
+<div id="dataset" class="section level1">
+<h1>Dataset</h1>
+<pre class="r"><code>tuition_cost &lt;- readr::read_csv(&#39;https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2020/2020-03-10/tuition_cost.csv&#39;)
+head(tuition_cost)</code></pre>
+<pre><code>## # A tibble: 6 x 10
+## name state state_code type degree_length room_and_board
+in_state_tuition in_state_total
+## &lt;chr&gt; &lt;chr&gt; &lt;chr&gt; &lt;chr&gt; &lt;chr&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;
+## 1 Aani… Mont… MT Publ… 2 Year NA 2380 2380
+## 2 Abil… Texas TX Priv… 4 Year 10350 34850 45200
+## 3 Abra… Geor… GA Publ… 2 Year 8474 4128 12602
+## 4 Acad… Minn… MN For … 2 Year NA 17661 17661
+## 5 Acad… Cali… CA For … 4 Year 16648 27810 44458
+## 6 Adam… Colo… CO Publ… 4 Year 8782 9440 18222
+## # … with 2 more variables: out_of_state_tuition &lt;dbl&gt;,
+out_of_state_total &lt;dbl&gt;</code></pre>
+<pre class="r"><code>#chose variables out of dataset that I wanted to use 
+#looked in raw dataset and saw 1 &quot;Other&quot; degree length, so I took it out in order to create a binary variable 
+tuition&lt;-tuition_cost%&gt;%filter(!degree_length==&quot;Other&quot;)%&gt;%select(name, state_code, type, degree_length, room_and_board, in_state_total, out_of_state_total)%&gt;%rename(Name=name, State=state_code, Type=type, Deg_Length=degree_length, R_B=room_and_board, In_State_Tot=in_state_total, Out_State_Tot=out_of_state_total)
+head(tuition)</code></pre>
+<pre><code>## # A tibble: 6 x 7
+## Name State Type Deg_Length R_B In_State_Tot
+Out_State_Tot
+## &lt;chr&gt; &lt;chr&gt; &lt;chr&gt; &lt;chr&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;
+## 1 Aaniiih Nakoda College MT Public 2 Year NA 2380 2380
+## 2 Abilene Christian University TX Private 4 Year 10350
+45200 45200
+## 3 Abraham Baldwin Agricultural College GA Public 2 Year
+8474 12602 21024
+## 4 Academy College MN For Profit 2 Year NA 17661 17661
+## 5 Academy of Art University CA For Profit 4 Year 16648
+44458 44458
+## 6 Adams State University CO Public 4 Year 8782 18222
+29238</code></pre>
+</div>
+<div id="introduction" class="section level1">
+<h1>INTRODUCTION</h1>
+<p>This dataset is from GitHub and describes college tuition across the United States. The categorical variables that I decided to use include Type, which lets us know if the college is Private, Public or For Profit, and Degree Length, which tells us if they are a 2 year university or a 4 year university. The numeric variables I decided to use were room and board cost, in state total cost, and out of state total cost. I decided not to use in state tuition and out of state tuition because I just wanted to focus on the total cost of college. There are a total of 2973 observations, although I take out one that is considered “Other” in the degree length, ending with 2972 observations. Later in the project, I have to tidy the data further and end up with 1879 observations, as some of the colleges don’t have a price for room and board.</p>
+</div>
+<div id="manova-anova-post-hoc-t-tests" class="section level1">
+<h1>MANOVA, ANOVA, Post-Hoc t-tests</h1>
+<pre class="r"><code>#Ho - For both DVs (in state and out of state tuitoin), means for each Type (of college) are equal
+#Ha - For at least one DV, at least one Type&#39;s mean is different
+
+#MANOVA
+manova&lt;-manova(cbind(In_State_Tot, Out_State_Tot)~Type, data=tuition)
+summary(manova)</code></pre>
+<pre><code>## Df Pillai approx F num Df den Df Pr(&gt;F)
+## Type 2 0.75166 893.86 4 5938 &lt; 2.2e-16 ***
+## Residuals 2969
+## ---
+## Signif. codes: 0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1
+&#39; &#39; 1</code></pre>
+<pre class="r"><code>#ANOVA
+summary.aov(manova) </code></pre>
+<pre><code>## Response In_State_Tot :
+## Df Sum Sq Mean Sq F value Pr(&gt;F)
+## Type 2 5.6878e+11 2.8439e+11 1695.2 &lt; 2.2e-16 ***
+## Residuals 2969 4.9808e+11 1.6776e+08
+## ---
+## Signif. codes: 0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1
+&#39; &#39; 1
+##
+## Response Out_State_Tot :
+## Df Sum Sq Mean Sq F value Pr(&gt;F)
+## Type 2 3.1172e+11 1.5586e+11 744.8 &lt; 2.2e-16 ***
+## Residuals 2969 6.2130e+11 2.0926e+08
+## ---
+## Signif. codes: 0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1
+&#39; &#39; 1</code></pre>
+<pre class="r"><code>#post-hoc t-test 
+pairwise.t.test(tuition$In_State_Tot,tuition$Type, p.adj=&quot;none&quot;)</code></pre>
+<pre><code>## 
+##  Pairwise comparisons using t tests with pooled SD 
+## 
+## data:  tuition$In_State_Tot and tuition$Type 
+## 
+##         For Profit Private
+## Private &lt;2e-16     -      
+## Public  5e-10      &lt;2e-16 
+## 
+## P value adjustment method: none</code></pre>
+<pre class="r"><code>pairwise.t.test(tuition$Out_State_Tot,tuition$Type, p.adj=&quot;none&quot;)</code></pre>
+<pre><code>## 
+##  Pairwise comparisons using t tests with pooled SD 
+## 
+## data:  tuition$Out_State_Tot and tuition$Type 
+## 
+##         For Profit Private
+## Private &lt;2e-16     -      
+## Public  0.73       &lt;2e-16 
+## 
+## P value adjustment method: none</code></pre>
+<pre class="r"><code>#type I error rate 
+1 - (0.95^9)</code></pre>
+<pre><code>## [1] 0.3697506</code></pre>
+<pre class="r"><code>#bonferroni correction 
+0.05/9</code></pre>
+<pre><code>## [1] 0.005555556</code></pre>
+<p>9 hypothesis tests were performed: 1 MANOVA, 2 ANOVAs, and 6 post-hoc t-tests. The probability of at least one type I error rate is about 36.9751%. The bonferroni correction is alpha = 0.005556.</p>
+<p>A MANOVA has many assumptions like random samples and independent observations, multivariate normality of each group, linear relationships among dependent variables, no multicollinearity, and more – but these were most likely not met as they are hard to test and meet.</p>
+<p>A one-way MANOVA was conducted to determine the effect of the college Type (Public, Private, For Profit) on two dependent variables (In State Total cost and Out of State Total cost). Significant differences were found among the three types of college for at least one of the dependent variables, Pillai trace = 0.75166, psuedo F(4, 5938) = 893.86, p &lt; 2.2e-16. Univariate ANOVAs for each dependent variable were conducted as follow-up tests to the MANOVA, using the Bonferroni method for controlling Type I error rates for multiple comparisons. The univariate ANOVAs for In State Total cost and Out of State Total cost were also significant, F(2, 2969) = 1695.2, p &lt; 2.2e-16 and F(2, 2969) = 744.8, p &lt; 2.2e-16, respectively. Post hoc analysis was performed conducting pairwise comparisons to determine which Type differed in in state total cost and out of state total cost. All three Types were found to differ significantly from each other in terms of In State Total cost, however only Private colleges were significantly different from the other types for Out of State total cost after adjusting for multiple comparisons.</p>
+</div>
+<div id="randomization" class="section level1">
+<h1>RANDOMIZATION</h1>
+<pre class="r"><code>head(tuition)</code></pre>
+<pre><code>## # A tibble: 6 x 7
+## Name State Type Deg_Length R_B In_State_Tot
+Out_State_Tot
+## &lt;chr&gt; &lt;chr&gt; &lt;chr&gt; &lt;chr&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;
+## 1 Aaniiih Nakoda College MT Public 2 Year NA 2380 2380
+## 2 Abilene Christian University TX Private 4 Year 10350
+45200 45200
+## 3 Abraham Baldwin Agricultural College GA Public 2 Year
+8474 12602 21024
+## 4 Academy College MN For Profit 2 Year NA 17661 17661
+## 5 Academy of Art University CA For Profit 4 Year 16648
+44458 44458
+## 6 Adams State University CO Public 4 Year 8782 18222
+29238</code></pre>
+<pre class="r"><code># RANDOMIZATION ONE-WAY ANOVA 
+
+#Ho: the true mean of the response variable is the same for all 3 groups
+#Ha: at least one of these means differs from the others
+
+summary(aov(Out_State_Tot~Type, data=tuition))</code></pre>
+<pre><code>## Df Sum Sq Mean Sq F value Pr(&gt;F)
+## Type 2 3.117e+11 1.559e+11 744.8 &lt;2e-16 ***
+## Residuals 2969 6.213e+11 2.093e+08
+## ---
+## Signif. codes: 0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1
+&#39; &#39; 1</code></pre>
+<pre class="r"><code>obs_F&lt;-744.8 #this is our observed F-statistic
+Fs&lt;-replicate(5000,{ #do everything in curly braces 5000 times and save the output
+ new&lt;-tuition%&gt;%mutate(Out_State_Tot=sample(Out_State_Tot)) #randomly permute response variable (len)
+ #compute the F-statistic by hand
+ SSW&lt;- new%&gt;%group_by(Type)%&gt;%summarize(SSW=sum((Out_State_Tot-mean(Out_State_Tot))^2))%&gt;%
+       summarize(sum(SSW))%&gt;%pull
+ SSB&lt;- new%&gt;%mutate(mean=mean(Out_State_Tot))%&gt;%group_by(Type)%&gt;%mutate(groupmean=mean(Out_State_Tot))%&gt;%
+       summarize(SSB=sum((mean-groupmean)^2))%&gt;%summarize(sum(SSB))%&gt;%pull
+ (SSB/2)/(SSW/2969) #compute F statistic (num df = K-1 = 3-1, denom df = N-K = 60-3)
+})
+
+hist(Fs, prob=T); abline(v = obs_F, col=&quot;red&quot;,add=T)</code></pre>
+<p><img src="/project2_files/figure-html/unnamed-chunk-3-1.png" width="768" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>#p-value
+mean(Fs&gt;obs_F)</code></pre>
+<pre><code>## [1] 0</code></pre>
+<pre class="r"><code>#p-value is 0, reject the null hypothesis, can say that the groups differ </code></pre>
+<p>A randomization test was performed in the form of a one-way ANOVA to test if the Type of college (Private, Public, or For Profit) affected out of state total cost. The null hypothesis is that the out of state total cost of college is going to be the same for all groups. The alternative hypothesis is that the out of state total cost of college is going to differ between the different groups. Based on the p-value of 0, we can reject the null hypothesis which means that there is a significant difference in the out of state total cost across the 3 different types of colleges.</p>
+<p>*The test statistic is coded for, but does not show up on the graph as it the mean difference is too large of a value.</p>
+</div>
+<div id="linear-regression" class="section level1">
+<h1>LINEAR REGRESSION</h1>
+<pre class="r"><code>#mean center
+#first had to get rid of any NAs in room and board -- tried to do it without and got NA for mean
+tuition_RB&lt;- tuition%&gt;%filter(!is.na(R_B))
+tuition_RB$RB_c&lt;- tuition_RB$R_B - mean(tuition_RB$R_B)
+head(tuition_RB)</code></pre>
+<pre><code>## # A tibble: 6 x 8
+## Name State Type Deg_Length R_B In_State_Tot
+Out_State_Tot RB_c
+## &lt;chr&gt; &lt;chr&gt; &lt;chr&gt; &lt;chr&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;
+## 1 Abilene Christian University TX Private 4 Year 10350
+45200 45200 255.
+## 2 Abraham Baldwin Agricultural C… GA Public 2 Year 8474
+12602 21024 -1621.
+## 3 Academy of Art University CA For Prof… 4 Year 16648
+44458 44458 6553.
+## 4 Adams State University CO Public 4 Year 8782 18222
+29238 -1313.
+## 5 Adelphi University NY Private 4 Year 16030 54690 54690
+5935.
+## 6 Adirondack Community College NY Public 2 Year 11660
+17035 21595 1565.</code></pre>
+<pre class="r"><code>#linear regression
+fit&lt;-lm(Out_State_Tot ~ RB_c*Deg_Length, data=tuition_RB)
+summary(fit)</code></pre>
+<pre><code>##
+## Call:
+## lm(formula = Out_State_Tot ~ RB_c * Deg_Length, data =
+tuition_RB)
+##
+## Residuals:
+## Min 1Q Median 3Q Max
+## -30828 -4824 -223 5285 40763
+##
+## Coefficients:
+## Estimate Std. Error t value Pr(&gt;|t|)
+## (Intercept) 2.375e+04 7.896e+02 30.075 &lt; 2e-16 ***
+## RB_c 2.367e+00 1.897e-01 12.481 &lt; 2e-16 ***
+## Deg_Length4 Year 1.347e+04 8.190e+02 16.450 &lt; 2e-16 ***
+## RB_c:Deg_Length4 Year 1.358e+00 2.021e-01 6.719 2.42e-11
+***
+## ---
+## Signif. codes: 0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1
+&#39; &#39; 1
+##
+## Residual standard error: 8594 on 1875 degrees of freedom
+## Multiple R-squared: 0.7125, Adjusted R-squared: 0.712
+## F-statistic: 1549 on 3 and 1875 DF, p-value: &lt; 2.2e-16</code></pre>
+<pre class="r"><code>#plot regression
+ggplot(tuition_RB,aes(R_B, Out_State_Tot, color=Deg_Length))+geom_point(size=0.75)+stat_smooth(method=&quot;lm&quot;,se=FALSE)</code></pre>
+<p><img src="/project2_files/figure-html/unnamed-chunk-4-1.png" width="768" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>#check assumption 
+#linearity and homoskedasticity
+resids&lt;-fit$residuals; fitvals&lt;-fit$fitted.values
+ggplot()+geom_point(aes(fitvals,resids))+geom_hline(yintercept=0, col=&quot;red&quot;)</code></pre>
+<p><img src="/project2_files/figure-html/unnamed-chunk-4-2.png" width="768" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>#normality
+ggplot()+geom_histogram(aes(resids), bins=20)</code></pre>
+<p><img src="/project2_files/figure-html/unnamed-chunk-4-3.png" width="768" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>ggplot()+geom_qq(aes(sample=resids))+geom_qq_line(aes(sample=resids))</code></pre>
+<p><img src="/project2_files/figure-html/unnamed-chunk-4-4.png" width="768" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>#robust SE regression 
+coeftest(fit,vcov=vcovHC(fit))</code></pre>
+<pre><code>##
+## t test of coefficients:
+##
+## Estimate Std. Error t value Pr(&gt;|t|)
+## (Intercept) 2.3746e+04 8.2614e+02 28.744 &lt; 2.2e-16 ***
+## RB_c 2.3672e+00 1.9278e-01 12.280 &lt; 2.2e-16 ***
+## Deg_Length4 Year 1.3472e+04 8.5293e+02 15.795 &lt; 2.2e-16
+***
+## RB_c:Deg_Length4 Year 1.3579e+00 2.0927e-01 6.489
+1.103e-10 ***
+## ---
+## Signif. codes: 0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1
+&#39; &#39; 1</code></pre>
+<pre class="r"><code>#proportion
+sum((fitvals-mean(tuition_RB$Out_State_Tot))^2)/sum((tuition_RB$Out_State_Tot-mean(tuition_RB$Out_State_Tot))^2)</code></pre>
+<pre><code>## [1] 0.7124625</code></pre>
+<p>Predicted Out of State Total cost of college for a 2 year degree plan, controlling for room and board cost is $23,750. Controlling for degree length, for every 1-unit increase in room and board cost, out of state total cost increases $2.367 on average. Controlling for room and board cost, out of state total cost is $1347 lower than 2 year degree plans. The slope for room and board on out of state total cost is 1.358 times greater for 4 year degree plans compared to 2 year degree plans.</p>
+<p>Based on the graph for linearity and homoskedasticity, they are both not met as there is some flaring inthe residuals. However, based on the graphs, normality looks like it is met.</p>
+<p>After recomputing regression results with robust standard errors, the coefficients did not change and there was minimal changes in the p-values. This model explains about 71.246% of the variation in the outcome.</p>
+</div>
+<div id="bootstrap-regression-model" class="section level1">
+<h1>BOOTSTRAP REGRESSION MODEL</h1>
+<pre class="r"><code># repeat 5000 times, saving the coefficients each time
+boot_tuition&lt;- sample_frac(tuition_RB, replace=T)
+# repeat 5000 times
+samp_tuition&lt;-replicate(5000, {
+  boot_tuition &lt;- sample_frac(tuition_RB, replace=T) #bootstrap your data
+  fit &lt;- lm(Out_State_Tot ~ R_B*Deg_Length, data=boot_tuition) #fit model
+  coef(fit) #save coefs
+})
+
+## Estimated SEs
+samp_tuition %&gt;% t %&gt;% as.data.frame %&gt;% summarize_all(sd)</code></pre>
+<pre><code>## (Intercept) R_B Deg_Length4 Year R_B:Deg_Length4 Year
+## 1 1141.063 0.1846403 1396.645 0.2018601</code></pre>
+<pre class="r"><code>coeftest(fit)</code></pre>
+<pre><code>##
+## t test of coefficients:
+##
+## Estimate Std. Error t value Pr(&gt;|t|)
+## (Intercept) 2.3746e+04 7.8957e+02 30.0750 &lt; 2.2e-16 ***
+## RB_c 2.3672e+00 1.8967e-01 12.4811 &lt; 2.2e-16 ***
+## Deg_Length4 Year 1.3472e+04 8.1899e+02 16.4496 &lt; 2.2e-16
+***
+## RB_c:Deg_Length4 Year 1.3579e+00 2.0211e-01 6.7187
+2.424e-11 ***
+## ---
+## Signif. codes: 0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1
+&#39; &#39; 1</code></pre>
+<p>When comparing the bootsrap regression model to the original and robust models, there is no change in the SEs and minimal differences in the p-values. Everything that was significant before is still significant.</p>
+</div>
+<div id="logistic-regression" class="section level1">
+<h1>LOGISTIC REGRESSION</h1>
+<pre class="r"><code>#logistic regression
+tuition2&lt;- tuition_RB%&gt;%mutate(y=ifelse(Deg_Length==&quot;2 Year&quot;,1,0))
+tuition2</code></pre>
+<pre><code>## # A tibble: 1,879 x 9
+## Name State Type Deg_Length R_B In_State_Tot
+Out_State_Tot RB_c y
+## &lt;chr&gt; &lt;chr&gt; &lt;chr&gt; &lt;chr&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;
+## 1 Abilene Christian Univers… TX Private 4 Year 10350
+45200 45200 255.  0
+## 2 Abraham Baldwin Agricultu… GA Public 2 Year 8474 12602
+21024 -1621.  1
+## 3 Academy of Art University CA For Pr… 4 Year 16648
+44458 44458 6553.  0
+## 4 Adams State University CO Public 4 Year 8782 18222
+29238 -1313.  0
+## 5 Adelphi University NY Private 4 Year 16030 54690 54690
+5935.  0
+## 6 Adirondack Community Coll… NY Public 2 Year 11660
+17035 21595 1565.  1
+## 7 Adrian College MI Private 4 Year 11318 48405 48405
+1223.  0
+## 8 Adventist University of H… FL Private 4 Year 4200
+19350 19350 -5895.  0
+## 9 Agnes Scott College GA Private 4 Year 12330 53490
+53490 2235.  0
+## 10 Alabama Agricultural and … AL Public 4 Year 8379
+18077 26297 -1716.  0
+## # … with 1,869 more rows</code></pre>
+<pre class="r"><code>fit_t2&lt;-glm(y~R_B+Type, data=tuition2, family=&quot;binomial&quot;)
+summary(fit_t2)</code></pre>
+<pre><code>##
+## Call:
+## glm(formula = y ~ R_B + Type, family = &quot;binomial&quot;, data
+= tuition2)
+##
+## Deviance Residuals:
+## Min 1Q Median 3Q Max
+## -2.3387 -0.4447 -0.1832 -0.0708 3.9418
+##
+## Coefficients:
+## Estimate Std. Error z value Pr(&gt;|z|)
+## (Intercept) 3.029e+00 6.793e-01 4.458 8.26e-06 ***
+## R_B -4.541e-04 3.278e-05 -13.853 &lt; 2e-16 ***
+## TypePrivate -2.644e+00 6.487e-01 -4.075 4.59e-05 ***
+## TypePublic 7.044e-02 6.250e-01 0.113 0.91
+## ---
+## Signif. codes: 0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1
+&#39; &#39; 1
+##
+## (Dispersion parameter for binomial family taken to be 1)
+##
+## Null deviance: 1553.96 on 1878 degrees of freedom
+## Residual deviance: 990.76 on 1875 degrees of freedom
+## AIC: 998.76
+##
+## Number of Fisher Scoring iterations: 6</code></pre>
+<pre class="r"><code>exp(coef(fit_t2))</code></pre>
+<pre><code>## (Intercept)         R_B TypePrivate  TypePublic 
+## 20.66769601  0.99954600  0.07109726  1.07297786</code></pre>
+<pre class="r"><code>#confusion matrix
+probs&lt;-predict(fit_t2,type=&quot;response&quot;) #get predicted probs from the model
+table(predict=as.numeric(probs&gt;.5),truth=tuition2$y)%&gt;%addmargins</code></pre>
+<pre><code>##        truth
+## predict    0    1  Sum
+##     0   1575  129 1704
+##     1     32  143  175
+##     Sum 1607  272 1879</code></pre>
+<pre class="r"><code>(1575+143)/1879 #accuracy</code></pre>
+<pre><code>## [1] 0.9143161</code></pre>
+<pre class="r"><code>143/272 #TPR</code></pre>
+<pre><code>## [1] 0.5257353</code></pre>
+<pre class="r"><code>1575/1607 #TNR</code></pre>
+<pre><code>## [1] 0.9800871</code></pre>
+<pre class="r"><code>143/175 #PPV </code></pre>
+<pre><code>## [1] 0.8171429</code></pre>
+<pre class="r"><code>#density plot log-odds
+tuition2$logit&lt;-predict(fit_t2,type=&quot;link&quot;)
+tuition2%&gt;%ggplot()+geom_density(aes(logit,color=Deg_Length,fill=Deg_Length), alpha=.4)+
+  theme(legend.position=c(.9,.85))+geom_vline(xintercept=0)+xlab(&quot;logit (log-odds)&quot;)+
+  geom_rug(aes(logit,color=Deg_Length))+
+  geom_text(x=-4.5,y=.08,label=&quot;TN = 1575&quot;)+
+  geom_text(x=-1.75,y=.05,label=&quot;FN = 129&quot;)+
+  geom_text(x=.35,y=.01,label=&quot;FP = 32&quot;)+
+  geom_text(x=.65,y=.15,label=&quot;TP = 143&quot;)</code></pre>
+<p><img src="/project2_files/figure-html/unnamed-chunk-6-1.png" width="768" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>#ROC curve &amp; AUC 
+ROCplot&lt;- ggplot(tuition2)+geom_roc(aes(d=y,m=probs), n.cuts=0)
+ROCplot</code></pre>
+<p><img src="/project2_files/figure-html/unnamed-chunk-6-2.png" width="768" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>calc_auc(ROCplot)</code></pre>
+<pre><code>##   PANEL group       AUC
+## 1     1    -1 0.8877681</code></pre>
+<pre class="r"><code>#10-fold CV, Accuracy, Sens, PPV 
+set.seed(1234)
+k=10 
+data&lt;-tuition2[sample(nrow(tuition2)),] 
+folds&lt;-cut(seq(1:nrow(tuition2)),breaks=k,labels=F)
+diags&lt;-NULL
+for(i in 1:k){
+  train&lt;-data[folds!=i,]
+  test&lt;-data[folds==i,]
+  truth&lt;-test$y 
+  fit&lt;-glm(y~R_B+Type,data=train,family=&quot;binomial&quot;)
+  probs&lt;-predict(fit,newdata = test,type=&quot;response&quot;)
+  diags&lt;-rbind(diags,class_diag(probs,truth))
+}
+summarize_all(diags,mean)</code></pre>
+<pre><code>##         acc      sens      spec       ppv       auc
+## 1 0.9137843 0.5170056 0.9797135 0.8199713 0.8830356</code></pre>
+<p>The odds of a college being 2 years long for a For Profit school is 20.66769601. Controlling for type of school, for every one additional dollar in room and board, odds of a college being a 2 year program increases by a factor of 0.99954600 (significant). Controlling for room and board, odds of a college being 2 years long for a private college is 0.07109726 times odds for a for profit college. Controlling for room and board, odds of a college being 2 years long for a public college is 1.07297786 times odds for a for profit college.</p>
+<p>The model’s accuracy is 0.9143161. The sensitivity (TPR) or the probability of correctly determining a college having a 2 year degree plan is 0.5257353. The specificity (TNR) or the probability of correctly determining a college having a 4 year degree plan is 0.9800871. The precision (PPV) or proportion of colleges that are classified as a 2 year degree plan and actually is: 0.8171429. The AUC is 0.8877681, which is good.</p>
+<p>After running a 10-fold CV, the out-of-sample AUC is 0.8873959, sensitivity 0.5259665, and recall (PPV) 0.8088085.</p>
+</div>
+<div id="lasso-regression" class="section level1">
+<h1>LASSO REGRESSION</h1>
+<pre class="r"><code>y&lt;-as.matrix(tuition2$y)
+x&lt;-model.matrix(y~Type+R_B+In_State_Tot+Out_State_Tot,data=tuition2)[,-1] 
+x&lt;-scale(x)
+
+cv&lt;-cv.glmnet(x,y,family=&quot;binomial&quot;)
+lasso&lt;-glmnet(x,y,family=&quot;binomial&quot;,lambda=cv$lambda.1se)
+coef(lasso)</code></pre>
+<pre><code>## 6 x 1 sparse Matrix of class &quot;dgCMatrix&quot;
+##                       s0
+## (Intercept)   -3.3414163
+## TypePrivate   -0.6322455
+## TypePublic     .        
+## R_B            .        
+## In_State_Tot   .        
+## Out_State_Tot -2.1884387</code></pre>
+<pre class="r"><code>set.seed(1234)
+k=10 #choose number of folds
+tuition2$private&lt;-ifelse(tuition2$Type==&quot;Private&quot;,1,0)
+data1&lt;-tuition2[sample(nrow(tuition2)),] 
+folds&lt;-cut(seq(1:nrow(tuition2)),breaks=k,labels=F) 
+diags&lt;-NULL
+for(i in 1:k){
+  train&lt;-data1[folds!=i,]
+  test&lt;-data1[folds==i,]
+  truth&lt;-test$y
+  fit&lt;-glm(y~Out_State_Tot+private,data=train,family=&quot;binomial&quot;)
+  probs&lt;-predict(fit,newdata = test,type=&quot;response&quot;)
+  diags&lt;-rbind(diags,class_diag(probs,truth))
+}
+diags%&gt;%summarize_all(mean)</code></pre>
+<pre><code>##         acc     sens      spec       ppv       auc
+## 1 0.9409262 0.705152 0.9791014 0.8655511 0.9366806</code></pre>
+<p>The only variables that are retained is Out_State_Tot and TypePrivate. After peforming a 10-fold LASSO CV, the out-of-sample AUC is 0.9366165, which is classified as great and is better than the logistic regression performed before. This suggests that this model is not overfitting.</p>
+</div>

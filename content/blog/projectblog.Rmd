@@ -1,0 +1,87 @@
+---
+title: "Memories"
+output: html_document
+date: "2020-05-15"
+author: "Tylana La"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+My years in undergrad are coming to an end. I've had a lot of good times and some *not so good* ones (organic chemistry, you have left me scarred 😖). I'm ready to close this chapter in my life and move on to the next. But before I go, I want to reminisce on some of my favorite moments from college using R and Python (afterall, I have one last very  important project to do before undergrad is ***actually*** over). 
+
+First off, let me explain how all this *coding* works. The "reticulate" package I've called for allows Python and R to interact in one place. So this first chunk is in R and I assign what time I'm talking about to the "time" object. 
+```{R}
+library(reticulate)
+time1<-"When I first joined college,"
+```
+
+Then, in this next chunk, which is now Python, I assign my memory to the memory object, which will be different for each memory I'm talking about; but in this case, its "spo". At the end of this chunk, I tell R and Python to interact, using the command "print(r."r object","python object")" to get the full message, which will output into a separate chunk. I do this exact process for the rest of my memories, so enjoy reading some of my favorite moments in college!
+
+```{python}
+spo="I never thought I would join a sorority. But in my first semester here, that's what I did! I met my line sisters and mom, who are the craziest bunch of people I've met. That first semester was a wild one, and I wouldn't have wanted to do it with any other group of girls. To all the late nights and all the fun nights, I won't forget them.  And I also got a big sis and a big bro, both of whom I hold near and dear to my heart. They have supported me through every step of my LABORIOUS pre-med journey (which is still going) with lots of food/boba and lots of love. Thank you for everything!"
+
+print(r.time1,spo)
+```
+
+![](/blog/projectblog_files/formal1.jpg){width=50%}
+![](/blog/projectblog_files/formal2.jpg){width=50%}
+
+```{R}
+time2<-"Then a semester later,"
+```
+
+```{python}
+bff="I met my best friends. We met in FIG and have spent countless nights studying together, ate so many meals together and suported each other through our MANY breakdowns (lol). HAHA I will never forget the one time we were studying for ochem in Jester and slept in the flag room OR our never ending boba runs 😫. I can't wait to see where the next chapter of our lives takes us, and I know deep down that these people are going to be my lifelong friends. I LOVE YOU GUYS ❤️" 
+
+print(r.time2,bff)
+```
+
+![](/blog/projectblog_files/bff.jpeg){width=50%}
+```{R}
+time3<-"Then ANOTHER semester later,"
+```
+
+```{python}
+bleh="I met a boy (LOL) and I'm still dating him to this day (it'll be three years this September!!!). He is super sweet, caring and very loving. He stuck with me when I was at my lowest and has also been there for all the good times too. I will forever thank the beings above for bringing him into my life. I'll keep it short so anyone reading doesn't get disgusted haha. Thanks bub for being in my life!"
+
+print(r.time3,bleh)
+```
+
+![](/blog/projectblog_files/bleh.jpeg){width=50%}
+
+```{python}
+litto="I got myself a little! Somehow we are completely opposite of each other and also the exact same. She has brought so many laughs and smiles into my life. She is someone that I know I'll always be close to even if we don't get to see each other all the time. I won't forget all of our gossiping and ranting to each other about random things. I hope you don't miss me too much because I'm only a phone call or text away! I love you litto ❤️"
+
+print(r.time3,litto)
+```
+
+![](/blog/projectblog_files/formal3.jpeg){width=50%}
+
+```{R}
+time4<-"In the last two years,"
+```
+
+```{python}
+spo2="I've been lucky enough to give back to my sorority. Last year, I got to be one of the philanthropy directors and helped raise awareness for domestic violence. My co-chair and I raised almost $2000, along with some homemade care packages, to donate to SAFE (Stop Abuse For Everyone). Then, in this past year, I was honored to be Vice President. I got to help run a whole freaking organization! But my favorite thing was planning events to promote sisterhood. I value being able to be VP and have learned a lot through the experience of both positions. Thanks to Sigmas for everything." 
+
+print(r.time4,spo2)
+```
+![](/blog/projectblog_files/service.jpeg){width=50%}
+![](/blog/projectblog_files/top3.jpeg){width=50%}
+
+```{R}
+time5<-"And now, its the end."
+```
+
+```{python}
+theend="This last semester was... interesting. Covid definitely sent us for a real one. Having the semester cut short was kind of sad. We didn't get the last hurrah that we thought we were gonna have. But at the end of the day, it's okay. I have made so many memories throughout the last four years. I'm ready to move on to the next chapter in my life (hopefully medical school soon!!). This might be the end of college, but this isnt the end of all these friendships I've made. I will continue to cherish every memory and relationship I've created."
+
+print(r.time5,theend)
+```
+![](/blog/projectblog_files/grad3.jpg){width=60%}
+
+Here's to the class of 2020! Special thanks to UT for cultivating a great college experience! Thanks for reading! 
+
+

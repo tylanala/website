@@ -1,0 +1,169 @@
+---
+title: "Project 1 - Tylana La - tml2322"
+output:
+  pdf_document: default
+  html_document: default
+date: "03/08/2020"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Introduction 
+
+I have three datasets that included Movie Names, Movie Ratings that corresponded to the Movie Names, and Scary Movies that also had ratings. The Movie Name dataset only included movie titles and years they were made, an ID number for each movie and corresponding genre(s) for each movie. The Movie Rating dataset included movie ID numbers that correlated to the movies in the Movie Name dataset, ratings for each movie, different user IDs and timestamps for each rating that was given. The Scary Movie dataset included movie titles, the director for each movie, the year the movie was made, if the movie was on Netflix or not, a jump count, jump scare rating and an IMDB rating for each movie. I got these datasets from the excel sheet provided that included a plethora of different datasets. 
+
+While I'm not the hugest fan of scary movies, I thought it would be interesting if I could find a relationship between the jump count, jump scare rating, the regular and/or IMDB rating. When I was looking through the datasets, I was expecting to see a high positive correlation between the jump count and jump scare rating. I was also expecting to see a high positive correlation between the jump count and regular/IMDB rating. 
+
+## Datasets 
+
+```{R}
+library(tidyverse)
+library(dplyr)
+library(ggplot2)
+
+movienames = read.csv("movie names.csv")
+scarymovies = read.csv("scary movies.csv")
+movieratings = read.csv("movie ratings.csv")
+
+#movie names now have movie ratings 
+ratedmovies<-movienames%>%full_join(movieratings) 
+#separated title (Movie (Year)) into into new columns "Movie"&"Year"
+sep_ratedmovies<-ratedmovies%>%separate(Title, c("Movie", "Year"), sep="[()]")%>%filter(!is.na(Movie))
+##checking if all datapoints in Year are numeric -- yes; some don't have years -- gives NA for some rows 
+which(is.na(as.numeric(as.character(sep_ratedmovies[["Year"]])))) 
+```
+
+## Tidying: Rearranging
+
+```{R}
+spreadmovies<- scarymovies%>%pivot_wider(names_from="Year",values_from="Director")
+glimpse(spreadmovies)
+spreadmovies%>%pivot_longer(-c(Movie.Name,Jump.Count,Jump.scare.Rating,Netflix..US.,IMDB), 
+                            names_to="Year", values_to="Director")%>%na.omit()
+glimpse(scarymovies)
+```
+
+Since my datasets were already pretty tidy, I made the Scary Movie dataset untidy by using pivot_wider and made each year a different column, allowing me to see which directors were in each column. Then, to make the dataset tidy again, I used pivot_longer. I ended up with a lot of NAs in the director column, so I used na.omit() to get back to the original dataset. I then compared the tidied dataset to the original dataset, and got the same amount of rows/columns as there were in the original dataset.  
+
+## Joining/Merging
+
+```{R}
+scarytitles<-scarymovies%>%mutate(Movie=str_trim(`Movie.Name`,"right"))%>%pull(`Movie.Name`) 
+movietitles<-sep_ratedmovies%>%mutate(Movie=str_trim(Movie,"right"))%>%pull(Movie)
+singlemovies<-movietitles%>%unique()
+intersect(scarytitles, singlemovies)
+
+#trimmed the extra spaces at the end of movie titles 
+sep_ratedmovies2<-sep_ratedmovies%>%mutate(Movie=str_trim(Movie,"right"))
+scarymovies2<-scarymovies%>%mutate(Movie=str_trim(`Movie.Name`,"right"))%>%
+  mutate_at(vars(Year),as.character)
+
+joinedmovies<-left_join(sep_ratedmovies2, scarymovies2, by=c("Movie","Year"))%>%
+  na.omit()%>%select(-Movie.Name)
+glimpse(joinedmovies)
+```
+
+First, I wanted to make sure that when the datasets were joined, there were more than 50 observations. So, I joined the different movie titles with the scary titles and got over 300 movies. Then, I used a left-join with the rated movie dataset on the left because it would allow me to start off with a neater dataset, in regards to the column positions. Before using na.omit() there were 5,648 entries, and after, there are 5,441 entries. I used na.omit() to delete any movies that were not in the other dataset because I want to compare scary movie raties to their regular ratings. Some scary movies were not in the regular rated dataset, so therefore I would not be able to compare the different ratings. 
+
+## Wrangling
+
+```{R}
+joinedmovies%>%group_by(Movie)%>%mutate("Mean Rating"=mean(Rating),
+  "Mean Jump Scare Rating"=mean(Jump.scare.Rating),"Mean Jump Count"=mean(Jump.Count), 
+  "Mean IMDB Rating"=mean(IMDB))%>%select(Movie, Year, "Mean Rating", "Mean Jump Scare Rating", 
+                                          "Mean Jump Count", "Mean IMDB Rating", Genres, Director)%>%
+                                           arrange(Movie)%>%distinct()
+
+joinedmovies%>%select(Movie, Director, Genres)%>%summarize_all(n_distinct)
+
+joinedmovies%>%group_by(Year, Movie)%>%filter(grepl("Horror|Thriller",Genres))%>%summarize(n=n(),
+  "Mean Rating"=mean(Rating), "SD Rating"=sd(Rating), "Min Rating"=min(Rating), 
+  "Max Rating"=max(Rating))%>%arrange(desc(`Mean Rating`))
+
+joinedmovies%>%group_by(Year, Movie, Director)%>%summarize("Mean Jump Count"=mean(Jump.Count), 
+  "Mean Rating"=mean(Rating),"Mean Jump Scare Rating"=mean(Jump.scare.Rating),
+  "Mean IMDB Rating"=mean(IMDB))%>%arrange(desc(`Mean Jump Count`))
+
+joinedmovies%>%group_by(Year, Movie, Director)%>%
+  summarize(max.Rating=max(Rating), max.IMDB=max(IMDB))%>%
+  arrange(desc(max.IMDB))
+
+joinedmovies%>%select(Rating, Jump.scare.Rating, Jump.Count, IMDB)%>%cor
+```
+
+Since some movies were made in multiple years, I often grouped the datasets by Movie and Year. I first just wanted to get the mean rating, jump scare rating, jump count and IMDB rating for all the movies. Then I just wanted to see how many directors and genres there were. I have to say that the number of genres isn't really representative of the actual number of different genres there were because some movies had multiple genres associated with them and some only had one. Some movies were rated more than once by different users, so I then saw the minimum and maximum ratings for those movies, along with the mean and standard deviation of those ratings. 
+
+For the next line of code, I wanted to see the different ratings for the higher jump counts and saw that even though there might have been a high jump scare rating, the regular/IMDB ratings weren't always that high as well. It got me to thinking that perhaps people who don't like scary movies might have been rating those movies poorly and bringing their "normal" rating down. Then I wanted to see which director of what movie had the highest regular and IMDB rating, which was The Silence of the Lambs directed by Johnathan Demme. For the correlation matrix, I did predict correctly that there was going to be a relatively high positive correlation between jump count and jump scare rating, but there were not strong correlations between the other variables at all, which I did not expect. 
+
+#Visualizations
+
+```{R}
+#only selected the following 4 numeric variables in the code because the other numeric 
+#variables (Movie.ID, User.ID, Timestamp) were just classification numbers for each movie, 
+#each user that rated a movie or a timestamp for when the movie was rated, respectively. 
+joinedmovies%>%select(Jump.Count, Jump.scare.Rating, Rating, IMDB)%>%
+  cor%>%as.data.frame%>%rownames_to_column%>%pivot_longer(-1)%>%
+  ggplot(aes(rowname,name,fill=value))+geom_tile()+geom_text(aes(label=round(value,2)))+
+  xlab("")+ylab("")+scale_fill_gradient2(low="purple",high="pink")
+
+joinedmovies%>%ggplot(aes(x=Jump.Count, y=Jump.scare.Rating))+geom_count(stat="summary")+
+  geom_smooth(method=lm, color="purple")+scale_x_continuous(breaks=seq(0,30,5))+
+  scale_y_continuous(breaks=seq(0,5,1))+ggtitle("Jump Count vs. Jump Scare Rating")+
+  xlab("Jump Count")+ylab("Jump Scare Rating")+theme(plot.title = element_text(hjust = 0.5), 
+  plot.background = element_rect(fill = "light blue"),
+  panel.background=element_rect(colour = "blue"))
+
+joinedmovies%>%ggplot(aes(x=Jump.Count, y=IMDB, color=Jump.scare.Rating))+geom_count()+
+  scale_size_area()+geom_smooth(method=lm, color="darkgreen")+
+  scale_x_continuous(breaks=seq(0,30,5))+scale_y_continuous(breaks=seq(0,10,1))+ 
+  ggtitle("Jump Count vs. IMDB")+xlab("Jump Count")+ylab("IMDB Rating")+
+  theme(plot.title = element_text(hjust = 0.5))
+```
+
+When I ran the correlation heatmap, I was happy to see that there was a very strong positive correlation between Jump count and Jump scare rating, since I had expected that. People most likely rated a movie higher on the Jump scare rating if there were more jump counts. However, I was very surprised to see that there wasn't a high or positive correlation between jump count and rating or jump count and IMDB rating. I thought that if there was a higher jump count, and therefore higher jump scare rating, the normal ratings would have been high as well, but instead they were lower the higher the jump count was. 
+
+My first plot shows the very high correlation between the jump count and jump scare rating. The second plot was more interesting to me while there was a slight negative correlation between jump count and IMDB, you could also see that even a lot of the jump scare ratings that were very low were close to the areas of high IMDB ratings and higher in areas of low IMDB rating. This also shows that jump scare rating and IMDB ratings also had a negative correlation. 
+
+#Dimensionality Reduction
+
+```{R}
+library(cluster)
+numericmovies<-joinedmovies%>%select(Jump.Count, Jump.scare.Rating, Rating, IMDB)
+
+#processing data
+scaledmovies<-numericmovies%>%scale
+
+#choosing number of clusters
+sil_width<-vector() #empty vector to hold mean sil width
+for(i in 2:10){
+  kms <- kmeans(scaledmovies,centers=i) #compute k-means solution
+  sil <- silhouette(kms$cluster,dist(scaledmovies)) #get sil widths
+  sil_width[i]<-mean(sil[,3]) #take averages (higher is better)
+}
+ggplot()+geom_line(aes(x=1:10,y=sil_width))+scale_x_continuous(name="k",breaks=1:10)
+
+#running cluster analysis 
+kmeans<-scaledmovies%>%kmeans(2)
+glimpse(kmeans)
+kmeans$size
+
+#interpret clusters and overall fit 
+final<-joinedmovies%>%mutate(cluster=as.factor(kmeans$cluster))%>%
+  select(-Timestamp, -Movie.ID, -User.ID, -Genres, -Director)
+glimpse(final)
+confmat<-final%>%group_by(Year,Movie)%>%count(cluster)%>%arrange(desc(n))%>%
+  pivot_wider(names_from="cluster",values_from="n",values_fill = list('n'=0))
+glimpse(confmat)
+
+#visualize 
+##install.packages(("GGally"))
+library(GGally)
+ggplot(final, aes(x=Jump.Count,y=IMDB, color=cluster))+geom_point()
+
+```
+
+I performed a kmeans cluster analysis of my data. After finding the most optimal silhouette width, which was 2, I ran the kmeans. Cluster 1 (n = 2752) was grouped mostly by scary movies that had a high jump count and a low IMDB rating. Cluster 2 (n = 2689) was grouped mostly around scary movies that had lower jump counts and higher IMDB ratings. Considering that my datasets were mostly looking at scary movies and their ratings, its understandable that the slightly larger cluster of movies is more on the right side of the graph because people that don't like scary movies, like me, might rate a movie that is too jump-scary to be a poor or just "okay" movie. 
+
+
